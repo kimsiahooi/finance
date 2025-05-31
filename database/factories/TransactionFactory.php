@@ -18,7 +18,7 @@ class TransactionFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->sentence(),
+            'name' => fake()->sentence(1),
             'description' => fake()->sentence(12),
             'amount' => fake()->numberBetween(-99, 99),
             'transaction_at' => fake()->dateTimeBetween('-1 year'),

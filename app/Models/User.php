@@ -49,6 +49,6 @@ class User extends Authenticatable
 
     protected function transactions()
     {
-        $this->hasMany(Transaction::class);
+        return $this->hasMany(Transaction::class);
     }
 }
