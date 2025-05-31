@@ -7,7 +7,8 @@
         "dev": "vite",
         "format": "prettier --write resources/",
         "format:check": "prettier --check resources/",
-        "lint": "eslint . --fix"
+        "lint": "eslint . --fix",
+        "ziggy:generate": "concurrently \"php artisan ziggy:generate --types\""
     },
     "devDependencies": {
         "@eslint/js": "^9.19.0",
@@ -23,6 +24,7 @@
         "vue-tsc": "^2.2.4"
     },
     "dependencies": {
+        "@biomejs/biome": "^1.9.4",
         "@inertiajs/vue3": "^2.0.0",
         "@tailwindcss/vite": "^4.1.1",
         "@vitejs/plugin-vue": "^5.2.1",
