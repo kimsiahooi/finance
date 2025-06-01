@@ -42,14 +42,16 @@ const props = withDefaults(
                     <ChevronLeft />
                 </Button>
                 <template v-for="(item, index) in items" :key="index">
-                    <template v-if="item.type === 'page'">
-                        <PaginationButton
-                            class="hidden md:inline-block"
-                            :value="item.value"
-                            :is-active="item.value === page"
-                            :links="paginateData.links"
-                        />
-                    </template>
+                    <PaginationButton
+                        v-if="item.type === 'page'"
+                        class="md:inline-block"
+                        :class="{
+                            hidden: item.value !== page,
+                        }"
+                        :value="item.value"
+                        :is-active="item.value === page"
+                        :links="paginateData.links"
+                    />
                     <PaginationEllipsis v-else class="hidden md:inline-block" />
                 </template>
                 <Link v-if="paginateData.next_page_url" :href="paginateData.next_page_url" as-child>
