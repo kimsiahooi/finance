@@ -85,11 +85,17 @@ const columns: ColumnDef<Transaction>[] = [
         cell: ({ row }) => h('div', null, row.getValue('description')),
     },
     {
+        accessorKey: 'type',
+        header: () => h('div', null, 'Type'),
+        cell: ({ row }) => h('div', null, row.getValue('type')),
+    },
+    {
         accessorKey: 'amount',
         header: () => h('div', { class: 'text-center' }, 'Amount'),
         cell: ({ row }) => {
-            const amount = row.original.amount;
-            return h('div', { class: ['text-center', { 'text-destructive': +amount <= 0 }] }, amount);
+            const { type } = row.original;
+
+            return h('div', { class: ['text-center', { 'text-destructive': type !== 'Income' }] }, row.getValue('amount'));
         },
     },
     {
