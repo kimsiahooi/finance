@@ -10,13 +10,19 @@ import { ref } from 'vue';
 import { Pagination } from '../pagination';
 import type { PaginateData } from '../pagination/types';
 
-const props = defineProps<{
-    columns: ColumnDef<TData, TValue>[];
-    paginateData: PaginateData<TData[]>;
-}>();
+const props = withDefaults(
+    defineProps<{
+        columns: ColumnDef<TData, TValue>[];
+        paginateData: PaginateData<TData[]>;
+        columnVisibility?: VisibilityState;
+    }>(),
+    {
+        columnVisibility: () => ({}),
+    },
+);
 
 const sorting = ref<SortingState>([]);
-const columnVisibility = ref<VisibilityState>({});
+const columnVisibility = ref<VisibilityState>(props.columnVisibility);
 
 const table = useVueTable({
     get data() {

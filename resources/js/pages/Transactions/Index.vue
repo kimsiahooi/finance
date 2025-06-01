@@ -8,7 +8,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem } from '@/types';
 import type { Transaction } from '@/types/transactions';
 import { Head } from '@inertiajs/vue3';
-import type { ColumnDef } from '@tanstack/vue-table';
+import type { ColumnDef, VisibilityState } from '@tanstack/vue-table';
 import { ArrowUpDown } from 'lucide-vue-next';
 import { h } from 'vue';
 
@@ -33,6 +33,10 @@ const deleteHandler = (transaction: Transaction) => {
     console.log(transaction);
 };
 
+const columnVisibility = <VisibilityState>{
+    description: false,
+};
+
 const columns: ColumnDef<Transaction>[] = [
     {
         accessorKey: 'id',
@@ -53,6 +57,11 @@ const columns: ColumnDef<Transaction>[] = [
         accessorKey: 'name',
         header: () => h('div', null, 'Name'),
         cell: ({ row }) => h('div', null, row.getValue('name')),
+    },
+    {
+        accessorKey: 'description',
+        header: () => h('div', null, 'Description'),
+        cell: ({ row }) => h('div', null, row.getValue('description')),
     },
     {
         accessorKey: 'amount',
@@ -98,7 +107,7 @@ const columns: ColumnDef<Transaction>[] = [
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
             <div>
                 <div>
-                    <DataTable :columns="columns" :paginate-data="transactions" />
+                    <DataTable :columns="columns" :paginate-data="transactions" :column-visibility="columnVisibility" />
                 </div>
             </div>
         </div>
