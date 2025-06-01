@@ -12,6 +12,7 @@ class Transaction extends Model
     use HasFactory;
 
     protected $fillable = ['name', 'remark', 'type', 'amount', 'transaction_at'];
+    protected $appends = ['type_display'];
 
     protected function casts(): array
     {
@@ -25,8 +26,8 @@ class Transaction extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function getTypeAttribute($value)
+    public function getTypeDisplayAttribute()
     {
-        return Type::from($value)?->label();
+        return Type::from($this->type)?->display();
     }
 }

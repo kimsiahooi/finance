@@ -11,7 +11,6 @@ import type { BreadcrumbItem } from '@/types';
 import type { Transaction } from '@/types/transactions';
 import { Head, Link, router } from '@inertiajs/vue3';
 import type { ColumnDef, VisibilityState } from '@tanstack/vue-table';
-import { ArrowUpDown } from 'lucide-vue-next';
 import { computed, h, reactive } from 'vue';
 
 defineOptions({
@@ -60,21 +59,6 @@ const columnVisibility = <VisibilityState>{
 
 const columns: ColumnDef<Transaction>[] = [
     {
-        accessorKey: 'id',
-        header: ({ column }) => {
-            return h(
-                Button,
-                {
-                    variant: 'ghost',
-                    class: 'cursor-pointer',
-                    onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
-                },
-                () => ['ID', h(ArrowUpDown, { class: 'ml-2 h-4 w-4' })],
-            );
-        },
-        cell: ({ row }) => h('div', null, row.getValue('id')),
-    },
-    {
         accessorKey: 'name',
         header: () => h('div', null, 'Name'),
         cell: ({ row }) => h('div', null, row.getValue('name')),
@@ -87,15 +71,19 @@ const columns: ColumnDef<Transaction>[] = [
     {
         accessorKey: 'type',
         header: () => h('div', null, 'Type'),
-        cell: ({ row }) => h('div', null, row.getValue('type')),
+        cell: ({ row }) => {
+            const { type_display } = row.original;
+
+            return h('div', null, type_display);
+        },
     },
     {
         accessorKey: 'amount',
         header: () => h('div', { class: 'text-center' }, 'Amount'),
         cell: ({ row }) => {
-            const { type } = row.original;
+            const { type_display } = row.original;
 
-            return h('div', { class: ['text-center', { 'text-destructive': type !== 'Income' }] }, row.getValue('amount'));
+            return h('div', { class: ['text-center', { 'text-destructive': type_display !== 'Income' }] }, row.getValue('amount'));
         },
     },
     {
@@ -119,6 +107,11 @@ const columns: ColumnDef<Transaction>[] = [
                 { class: 'relative' },
                 h(Dropdown, {
                     actions: <DropdownAction[]>[
+                        {
+                            name: 'Edit',
+                            type: 'link',
+                            url: route('transactions.edit', { transaction: transaction.id }),
+                        },
                         {
                             name: 'Delete',
                             type: 'button',

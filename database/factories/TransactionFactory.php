@@ -20,7 +20,7 @@ class TransactionFactory extends Factory
     {
         return [
             'name' => fake()->sentence(1),
-            'description' => fake()->sentence(12),
+            'remark' => fake()->sentence(12),
             'type' => fake()->randomElement(Type::cases()),
             'amount' => fake()->numberBetween(0, 99),
             'transaction_at' => fake()->dateTimeBetween('-1 year'),

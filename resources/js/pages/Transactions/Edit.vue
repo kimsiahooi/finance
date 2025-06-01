@@ -10,14 +10,15 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/AppLayout.vue';
 import AppMainLayout from '@/layouts/AppMainLayout.vue';
 import type { BreadcrumbItem } from '@/types';
-import type { TransactionType } from '@/types/transactions';
+import type { Transaction, TransactionType } from '@/types/transactions';
 import { Head, useForm } from '@inertiajs/vue3';
 
 defineOptions({
     layout: AppMainLayout,
 });
 
-defineProps<{
+const props = defineProps<{
+    transaction: Transaction;
     types: SelectOption[];
 }>();
 
@@ -31,8 +32,12 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: route('transactions.index'),
     },
     {
-        title: 'Create',
-        href: route('transactions.create'),
+        title: props.transaction.name,
+        href: '#',
+    },
+    {
+        title: 'Edit',
+        href: route('transactions.edit', { transaction: props.transaction.id }),
     },
 ];
 
@@ -43,18 +48,18 @@ const form = useForm<{
     amount: string | number;
     transaction_at: Date;
 }>({
-    name: '',
-    remark: '',
-    type: 'EXPENSE',
-    amount: '',
-    transaction_at: new Date(),
+    name: props.transaction.name,
+    remark: props.transaction.remark || '',
+    type: props.transaction.type,
+    amount: props.transaction.amount,
+    transaction_at: new Date(props.transaction.transaction_at),
 });
 
-const submit = () => form.post(route('transactions.store'));
+const submit = () => form.put(route('transactions.update', { transaction: props.transaction.id }));
 </script>
 
 <template>
-    <Head title="Create Transaction" />
+    <Head title="Edit Transaction" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
@@ -62,7 +67,7 @@ const submit = () => form.post(route('transactions.store'));
                 <form @submit.prevent="submit">
                     <Card class="w-full">
                         <CardHeader>
-                            <CardTitle>Create Transaction</CardTitle>
+                            <CardTitle>Edit Transaction</CardTitle>
                             <CardDescription></CardDescription>
                         </CardHeader>
                         <CardContent>
@@ -95,7 +100,7 @@ const submit = () => form.post(route('transactions.store'));
                             </div>
                         </CardContent>
                         <CardFooter class="flex justify-between px-6">
-                            <Button type="submit" class="cursor-pointer" :disabled="form.processing">Create</Button>
+                            <Button type="submit" class="cursor-pointer" :disabled="form.processing">Update</Button>
                         </CardFooter>
                     </Card>
                 </form>

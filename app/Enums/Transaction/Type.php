@@ -7,7 +7,7 @@ enum Type: string
     case Expense = 'EXPENSE';
     case Income = 'INCOME';
 
-    public function label(): string
+    public function display(): string
     {
         return match ($this) {
             self::Expense => 'Expense',

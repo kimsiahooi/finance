@@ -15,7 +15,7 @@ Route::middleware(['auth'])->group(function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
 
-    Route::resource('transactions', TransactionController::class);
+    Route::resource('transactions', TransactionController::class)->except(['show']);
 });
 
 require __DIR__ . '/settings.php';

@@ -7,6 +7,7 @@ use App\Models\Transaction;
 use App\Services\ErrorLoggerService;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
 class TransactionController extends Controller
@@ -35,7 +36,7 @@ class TransactionController extends Controller
         $types = collect(Type::cases())
             ->map(function (Type $type) {
                 return [
-                    'name' => $type->label(),
+                    'name' => $type->display(),
                     'value' => $type->value,
                 ];
             });
@@ -81,7 +82,20 @@ class TransactionController extends Controller
      */
     public function edit(Transaction $transaction)
     {
-        //
+        Gate::authorize('update', $transaction);
+
+        $types = collect(Type::cases())
+            ->map(function (Type $type) {
+                return [
+                    'name' => $type->display(),
+                    'value' => $type->value,
+                ];
+            });
+
+        return inertia('Transactions/Edit', [
+            'transaction' => $transaction,
+            'types' => $types,
+        ]);
     }
 
     /**
@@ -89,7 +103,23 @@ class TransactionController extends Controller
      */
     public function update(Request $request, Transaction $transaction)
     {
-        //
+        Gate::authorize('update', $transaction);
+
+        try {
+            $transaction->update($request->validate([
+                'name' => ['required', 'string', 'max:255'],
+                'remark' => ['nullable', 'string'],
+                'type' => ['required', Rule::enum(Type::class)],
+                'amount' => ['required', 'numeric', 'decimal:0,2', 'min:0'],
+                'transaction_at' => ['required', 'date', 'before:tomorrow'],
+            ]));
+
+            return back()->with('success', 'Transaction updated successfully.');
+        } catch (QueryException $e) {
+            ErrorLoggerService::log($e);
+
+            return back()->with('error', 'Something went wrong. Please try again.');
+        }
     }
 
     /**
@@ -97,6 +127,6 @@ class TransactionController extends Controller
      */
     public function destroy(Transaction $transaction)
     {
-        //
+        Gate::authorize('delete', $transaction);
     }
 }
