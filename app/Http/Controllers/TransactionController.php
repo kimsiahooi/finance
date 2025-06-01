@@ -12,7 +12,7 @@ class TransactionController extends Controller
      */
     public function index(Request $request)
     {
-        $transactions = Transaction::where('user_id', $request->user()->id)->latest()->get();
+        $transactions = Transaction::where('user_id', $request->user()->id)->latest()->paginate(15);
 
         return inertia('Transactions/Index', [
             'transactions' => $transactions,

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { PaginateData } from '@/components/shared/pagination/types';
 import { DataTable, Dropdown } from '@/components/shared/table';
 import type { DropdownAction } from '@/components/shared/table/types';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,7 @@ import { ArrowUpDown } from 'lucide-vue-next';
 import { h } from 'vue';
 
 defineProps<{
-    transactions: Transaction[];
+    transactions: PaginateData<Transaction[]>;
 }>();
 
 const { formatDateTime } = useFormatDateTime();
@@ -95,7 +96,11 @@ const columns: ColumnDef<Transaction>[] = [
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-            <DataTable :columns="columns" :data="transactions" />
+            <div>
+                <div>
+                    <DataTable :columns="columns" :paginate-data="transactions" />
+                </div>
+            </div>
         </div>
     </AppLayout>
 </template>

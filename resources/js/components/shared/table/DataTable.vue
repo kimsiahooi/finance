@@ -7,10 +7,12 @@ import type { ColumnDef, SortingState, VisibilityState } from '@tanstack/vue-tab
 import { FlexRender, getCoreRowModel, getSortedRowModel, useVueTable } from '@tanstack/vue-table';
 import { ChevronDown } from 'lucide-vue-next';
 import { ref } from 'vue';
+import { Pagination } from '../pagination';
+import type { PaginateData } from '../pagination/types';
 
 const props = defineProps<{
     columns: ColumnDef<TData, TValue>[];
-    data: TData[];
+    paginateData: PaginateData<TData[]>;
 }>();
 
 const sorting = ref<SortingState>([]);
@@ -18,7 +20,7 @@ const columnVisibility = ref<VisibilityState>({});
 
 const table = useVueTable({
     get data() {
-        return props.data;
+        return props.paginateData.data;
     },
     get columns() {
         return props.columns;
@@ -89,6 +91,12 @@ const table = useVueTable({
                     </template>
                 </TableBody>
             </Table>
+        </div>
+        <div class="flex flex-col items-center justify-end gap-2 space-x-2 py-2 md:flex-row">
+            <div class="text-muted-foreground flex-1 text-sm"></div>
+            <div class="space-x-2">
+                <Pagination :paginate-data="paginateData" />
+            </div>
         </div>
     </div>
 </template>
