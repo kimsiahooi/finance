@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { DateTimePicker } from '@/components/shared/calendar';
+import { Select } from '@/components/shared/select';
+import type { SelectOption } from '@/components/shared/select/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -8,11 +10,16 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/AppLayout.vue';
 import AppMainLayout from '@/layouts/AppMainLayout.vue';
 import type { BreadcrumbItem } from '@/types';
-import { Head, router, useForm } from '@inertiajs/vue3';
+import type { TransactionType } from '@/types/transactions';
+import { Head, useForm } from '@inertiajs/vue3';
 
 defineOptions({
     layout: AppMainLayout,
 });
+
+defineProps<{
+    types: SelectOption[];
+}>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -32,24 +39,25 @@ const breadcrumbs: BreadcrumbItem[] = [
 const form = useForm<{
     name: string;
     description: string;
+    type: TransactionType;
     amount: string | number;
     transaction_at: Date | null;
 }>({
     name: '',
     description: '',
+    type: 'EXPENSE',
     amount: '',
     transaction_at: null,
 });
 
 const datetimePickerHandler = (datetime: Date) => {
     form.transaction_at = datetime;
-    console.log(form.transaction_at);
 };
 
 const submit = () =>
     form.post(route('transactions.store'), {
         onSuccess: () => {
-            router.reload();
+            form.reset();
         },
     });
 </script>
@@ -71,22 +79,27 @@ const submit = () =>
                                 <div class="flex flex-col space-y-1.5">
                                     <Label>Name</Label>
                                     <Input type="text" placeholder="Enter Name" v-model:model-value="form.name" />
-                                    <p v-if="form.errors.name">{{ form.errors.name }}</p>
+                                    <p v-if="form.errors.name" class="text-destructive">{{ form.errors.name }}</p>
                                 </div>
                                 <div class="flex flex-col space-y-1.5">
                                     <Label>Description</Label>
                                     <Textarea placeholder="Enter Description" v-model:model-value="form.description" />
-                                    <p v-if="form.errors.description">{{ form.errors.description }}</p>
+                                    <p v-if="form.errors.description" class="text-destructive">{{ form.errors.description }}</p>
+                                </div>
+                                <div class="flex flex-col space-y-1.5">
+                                    <Label>Type</Label>
+                                    <Select :options="types" placeholder="Select type" v-model="form.type" trigger-class="w-full" />
+                                    <p v-if="form.errors.description" class="text-destructive">{{ form.errors.description }}</p>
                                 </div>
                                 <div class="flex flex-col space-y-1.5">
                                     <Label>Amount</Label>
                                     <Input type="number" placeholder="Enter Name" v-model:model-value.number="form.amount" step=".01" />
-                                    <p v-if="form.errors.amount">{{ form.errors.amount }}</p>
+                                    <p v-if="form.errors.amount" class="text-destructive">{{ form.errors.amount }}</p>
                                 </div>
                                 <div class="flex flex-col space-y-1.5">
                                     <Label>Transaction at</Label>
                                     <DateTimePicker @update:value="datetimePickerHandler" />
-                                    <p v-if="form.errors.transaction_at">{{ form.errors.transaction_at }}</p>
+                                    <p v-if="form.errors.transaction_at" class="text-destructive">{{ form.errors.transaction_at }}</p>
                                 </div>
                             </div>
                         </CardContent>

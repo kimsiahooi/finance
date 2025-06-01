@@ -1,8 +1,11 @@
+export type TransactionTypeLabel = 'Expense' | 'Income';
+export type TransactionType = 'EXPENSE' | 'INCOME';
+
 export interface Transaction {
     readonly id: number;
     name: string;
     description: string | null;
-    type: 'Expense' | 'Income';
+    type: TransactionTypeLabel;
     amount: string;
     transaction_at: Date;
     user_id: number;

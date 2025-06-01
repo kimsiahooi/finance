@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Enums\Transaction\Type;
 use App\Models\Transaction;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class TransactionController extends Controller
 {
@@ -29,7 +32,17 @@ class TransactionController extends Controller
      */
     public function create()
     {
-        return inertia('Transactions/Create');
+        $types = collect(Type::cases())
+            ->map(function (Type $type) {
+                return [
+                    'name' => $type->label(),
+                    'value' => $type->value,
+                ];
+            });
+
+        return inertia('Transactions/Create', [
+            'types' => $types,
+        ]);
     }
 
     /**
@@ -37,7 +50,20 @@ class TransactionController extends Controller
      */
     public function store(Request $request)
     {
-        dd($request->all());
+        try {
+            $request->user()->transactions()
+                ->create($request->validate([
+                    'name' => ['required', 'string', 'max:255'],
+                    'description' => ['nullable', 'string'],
+                    'type' => ['required', Rule::enum(Type::class)],
+                    'amount' => ['required', 'numeric', 'decimal:0,2', 'min:0'],
+                    'transaction_at' => ['required', 'date', 'before:tomorrow'],
+                ]));
+
+            return back()->with('success', 'Transaction created successfully.');
+        } catch (QueryException $e) {
+            return back()->with('error', $e->getMessage());
+        }
     }
 
     /**
