@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\Transaction\Type;
 use App\Models\Transaction;
+use App\Services\ErrorLoggerService;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -62,12 +63,8 @@ class TransactionController extends Controller
 
             return back()->with('success', 'Transaction created successfully.');
         } catch (QueryException $e) {
-            Log::error('Database error when creating transaction', [
-                'user_id' => $request->user()?->id,
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'input' => $request->all(),
-            ]);
+            ErrorLoggerService::log($e);
+
             return back()->with('error', 'Something went wrong. Please try again.');
         }
     }
