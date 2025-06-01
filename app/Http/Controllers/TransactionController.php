@@ -128,5 +128,15 @@ class TransactionController extends Controller
     public function destroy(Transaction $transaction)
     {
         Gate::authorize('delete', $transaction);
+
+        try {
+            $transaction->delete();
+
+            return back()->with('success', 'Transaction deleted successfully.');
+        } catch (QueryException $e) {
+            ErrorLoggerService::log($e);
+
+            return back()->with('error', 'Something went wrong. Please try again.');
+        }
     }
 }

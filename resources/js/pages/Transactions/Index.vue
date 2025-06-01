@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { DeleteDialog } from '@/components/shared/dialog';
+import type { DeleteDialogType } from '@/components/shared/dialog/types';
 import type { PaginateData } from '@/components/shared/pagination/types';
 import { DataTable, Dropdown } from '@/components/shared/table';
 import type { DropdownAction, Filter, SearchConfig } from '@/components/shared/table/types';
@@ -11,7 +13,7 @@ import type { BreadcrumbItem } from '@/types';
 import type { Transaction } from '@/types/transactions';
 import { Head, Link, router } from '@inertiajs/vue3';
 import type { ColumnDef, VisibilityState } from '@tanstack/vue-table';
-import { computed, h, reactive } from 'vue';
+import { computed, h, reactive, watch } from 'vue';
 
 defineOptions({
     layout: AppMainLayout,
@@ -28,6 +30,13 @@ const routeParams = computed(() => route().params);
 const filter = reactive<Filter>({
     search: routeParams.value.search,
     entries: routeParams.value.entries || '10',
+});
+
+const deleteDialog = reactive<DeleteDialogType<Transaction>>({
+    isDeleting: false,
+    isOpen: false,
+    title: '',
+    data: null,
 });
 
 const searchConfig: SearchConfig = {
@@ -49,8 +58,25 @@ const filterChangeHandler = (filter: Filter) => {
     router.visit(route('transactions.index', { ...filter }));
 };
 
-const deleteHandler = (transaction: Transaction) => {
-    console.log(transaction);
+const setDeleteDialog = (transaction: Transaction) => {
+    deleteDialog.data = transaction;
+};
+
+const resetHandler = () => {
+    deleteDialog.data = null;
+};
+
+const deleteHandler = () => {
+    if (deleteDialog.data && !deleteDialog.isDeleting) {
+        deleteDialog.isDeleting = true;
+        router.visit(route('transactions.destroy', { transaction: deleteDialog.data.id }), {
+            method: 'delete',
+            onFinish: () => {
+                deleteDialog.isDeleting = false;
+                deleteDialog.data = null;
+            },
+        });
+    }
 };
 
 const columnVisibility = <VisibilityState>{
@@ -115,7 +141,7 @@ const columns: ColumnDef<Transaction>[] = [
                         {
                             name: 'Delete',
                             type: 'button',
-                            onClick: () => deleteHandler(transaction),
+                            onClick: () => setDeleteDialog(transaction),
                         },
                     ],
                 }),
@@ -123,6 +149,19 @@ const columns: ColumnDef<Transaction>[] = [
         },
     },
 ];
+
+watch(
+    () => deleteDialog.data,
+    (newDeleteData) => {
+        if (newDeleteData) {
+            deleteDialog.title = newDeleteData.name;
+            deleteDialog.isOpen = true;
+        } else {
+            deleteDialog.title = '';
+            deleteDialog.isOpen = false;
+        }
+    },
+);
 </script>
 
 <template>
@@ -148,6 +187,7 @@ const columns: ColumnDef<Transaction>[] = [
                     />
                 </div>
             </div>
+            <DeleteDialog :delete-dialog="deleteDialog" @reset="resetHandler" @delete="deleteHandler" />
         </div>
     </AppLayout>
 </template>
