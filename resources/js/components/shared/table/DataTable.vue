@@ -76,7 +76,7 @@ const resetHandler = () => {
 
 <template>
     <div class="space-y-3">
-        <div class="flex items-center justify-between gap-2">
+        <div class="flex flex-col justify-between gap-2 md:flex-row md:items-center">
             <div>
                 <form class="flex flex-col gap-2 md:flex-row md:items-center" @submit.prevent="searchHandler">
                     <div>
