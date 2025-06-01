@@ -41,18 +41,14 @@ const form = useForm<{
     description: string;
     type: TransactionType;
     amount: string | number;
-    transaction_at: Date | null;
+    transaction_at: Date;
 }>({
     name: '',
     description: '',
     type: 'EXPENSE',
     amount: '',
-    transaction_at: null,
+    transaction_at: new Date(),
 });
-
-const datetimePickerHandler = (datetime: Date) => {
-    form.transaction_at = datetime;
-};
 
 const submit = () =>
     form.post(route('transactions.store'), {
@@ -98,7 +94,7 @@ const submit = () =>
                                 </div>
                                 <div class="flex flex-col space-y-1.5">
                                     <Label>Transaction at</Label>
-                                    <DateTimePicker @update:value="datetimePickerHandler" />
+                                    <DateTimePicker v-model="form.transaction_at" />
                                     <p v-if="form.errors.transaction_at" class="text-destructive">{{ form.errors.transaction_at }}</p>
                                 </div>
                             </div>

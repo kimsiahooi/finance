@@ -9,7 +9,7 @@ import { CalendarIcon } from 'lucide-vue-next';
 import { computed, watch } from 'vue';
 
 const hours = Array.from({ length: 12 }, (_, i) => i + 1).reverse();
-const minutes = Array.from({ length: 12 }, (_, i) => i * 5);
+const minutes = Array.from({ length: 60 }, (_, i) => i);
 
 const model = defineModel<Date | undefined>();
 
@@ -69,7 +69,7 @@ const handleTimeChange = (type: 'hour' | 'minute' | 'ampm', value: string) => {
 const dateResult = computed(() => (model.value ? formatDateTime(model.value, 'YYYY-MM-DD hh:mm:ssa') : 'YYYY-MM-DD hh:mm:ssa'));
 
 const calendarDate = computed(() =>
-    model.value ? new CalendarDate(model.value.getFullYear(), model.value.getMonth(), model.value.getDay()) : undefined,
+    model.value ? new CalendarDate(model.value.getFullYear(), model.value.getMonth() + 1, model.value.getDate()) : undefined,
 );
 
 watch(model, (newVal) => {
