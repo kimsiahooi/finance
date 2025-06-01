@@ -6,6 +6,7 @@ use App\Enums\Transaction\Type;
 use App\Models\Transaction;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class TransactionController extends Controller
@@ -61,7 +62,13 @@ class TransactionController extends Controller
 
             return back()->with('success', 'Transaction created successfully.');
         } catch (QueryException $e) {
-            return back()->setStatusCode(400)->with('error', $e->getMessage());
+            Log::error('Database error when creating transaction', [
+                'user_id' => $request->user()?->id,
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'input' => $request->all(),
+            ]);
+            return back()->with('error', $e->getMessage());
         }
     }
 

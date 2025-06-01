@@ -89,11 +89,11 @@ const submit = () =>
                                 <div class="flex flex-col space-y-1.5">
                                     <Label>Type</Label>
                                     <Select :options="types" placeholder="Select type" v-model="form.type" trigger-class="w-full" />
-                                    <p v-if="form.errors.description" class="text-destructive">{{ form.errors.description }}</p>
+                                    <p v-if="form.errors.type" class="text-destructive">{{ form.errors.type }}</p>
                                 </div>
                                 <div class="flex flex-col space-y-1.5">
                                     <Label>Amount</Label>
-                                    <Input type="number" placeholder="Enter Name" v-model:model-value.number="form.amount" step=".01" />
+                                    <Input type="number" placeholder="Enter Amount" v-model:model-value.number="form.amount" step=".01" />
                                     <p v-if="form.errors.amount" class="text-destructive">{{ form.errors.amount }}</p>
                                 </div>
                                 <div class="flex flex-col space-y-1.5">
