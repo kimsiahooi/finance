@@ -7,7 +7,6 @@ use App\Models\Transaction;
 use App\Services\ErrorLoggerService;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class TransactionController extends Controller

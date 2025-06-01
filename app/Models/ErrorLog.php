@@ -21,6 +21,7 @@ class ErrorLog extends Model
     {
         return [
             'context' => 'array',
+            'input' => 'array',
         ];
     }
 }

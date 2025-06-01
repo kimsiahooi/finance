@@ -7,7 +7,7 @@ use Throwable;
 
 class ErrorLoggerService
 {
-    public static function log(Throwable $e, array $context = [], string $level = 'error'): void
+    public static function log(Throwable $e, $context = null, string $level = 'error'): void
     {
         $request = request();
         $location = request()->route()?->getName() ?? 'unknown';
