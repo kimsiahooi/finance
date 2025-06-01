@@ -15,7 +15,8 @@ class TransactionController extends Controller
         $transactions = Transaction::where('user_id', $request->user()->id)
             ->when($request->search, fn($query) => $query->where('name', 'LIKE', "%$request->search%"))
             ->latest()
-            ->paginate($request->query('entries', 10));
+            ->paginate($request->query('entries', 10))
+            ->withQueryString();
 
         return inertia('Transactions/Index', [
             'transactions' => $transactions,
