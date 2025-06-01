@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Transaction\Type;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -16,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->text('description')->nullable();
+            $table->enum('type', array_column(Type::cases(), 'value'))->default(Type::Expense->value);
             $table->decimal('amount');
             $table->datetime('transaction_at');
             $table->foreignIdFor(User::class)->constrained();
