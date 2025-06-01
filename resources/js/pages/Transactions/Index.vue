@@ -5,12 +5,17 @@ import type { DropdownAction } from '@/components/shared/table/types';
 import { Button } from '@/components/ui/button';
 import { useFormatDateTime } from '@/composables/useFormatDateTime';
 import AppLayout from '@/layouts/AppLayout.vue';
+import AppMainLayout from '@/layouts/AppMainLayout.vue';
 import type { BreadcrumbItem } from '@/types';
 import type { Transaction } from '@/types/transactions';
 import { Head } from '@inertiajs/vue3';
 import type { ColumnDef, VisibilityState } from '@tanstack/vue-table';
 import { ArrowUpDown } from 'lucide-vue-next';
 import { h } from 'vue';
+
+defineOptions({
+    layout: AppMainLayout,
+});
 
 defineProps<{
     transactions: PaginateData<Transaction[]>;

@@ -99,7 +99,7 @@ const table = useVueTable({
             </Table>
         </div>
         <div class="flex flex-col items-center justify-end gap-2 space-x-2 py-2 md:flex-row">
-            <div class="text-muted-foreground flex-1 text-sm"></div>
+            <div class="flex-1"></div>
             <div class="space-x-2">
                 <Pagination :paginate-data="paginateData" />
             </div>
