@@ -28,7 +28,7 @@ class TransactionController extends Controller
      */
     public function create()
     {
-        //
+        return inertia('Transactions/Create');
     }
 
     /**
@@ -36,7 +36,7 @@ class TransactionController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        dd($request->all());
     }
 
     /**

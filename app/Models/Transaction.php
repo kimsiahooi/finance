@@ -12,6 +12,13 @@ class Transaction extends Model
 
     protected $fillable = ['name', 'description', 'amount', 'transaction_at'];
 
+    protected function casts(): array
+    {
+        return [
+            'transaction_at' => 'datetime',
+        ];
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);

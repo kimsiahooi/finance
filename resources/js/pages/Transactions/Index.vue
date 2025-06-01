@@ -9,7 +9,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import AppMainLayout from '@/layouts/AppMainLayout.vue';
 import type { BreadcrumbItem } from '@/types';
 import type { Transaction } from '@/types/transactions';
-import { Head, router } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import type { ColumnDef, VisibilityState } from '@tanstack/vue-table';
 import { ArrowUpDown } from 'lucide-vue-next';
 import { computed, h, reactive } from 'vue';
@@ -93,6 +93,11 @@ const columns: ColumnDef<Transaction>[] = [
         },
     },
     {
+        accessorKey: 'transaction_at',
+        header: () => h('div', { class: 'text-center' }, 'Transaction At'),
+        cell: ({ row }) => h('div', { class: 'text-center' }, formatDateTime(row.getValue('transaction_at')) || undefined),
+    },
+    {
         accessorKey: 'created_at',
         header: () => h('div', { class: 'text-center' }, 'Created At'),
         cell: ({ row }) => h('div', { class: 'text-center' }, formatDateTime(row.getValue('created_at')) || undefined),
@@ -122,11 +127,16 @@ const columns: ColumnDef<Transaction>[] = [
 </script>
 
 <template>
-    <Head title="Transaction list" />
+    <Head title="Transaction List" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-            <div>
+            <div class="space-y-3">
+                <div class="flex flex-wrap items-center justify-end gap-2">
+                    <Link :href="route('transactions.create')" as-child>
+                        <Button class="cursor-pointer">Create</Button>
+                    </Link>
+                </div>
                 <div>
                     <DataTable
                         :columns="columns"
