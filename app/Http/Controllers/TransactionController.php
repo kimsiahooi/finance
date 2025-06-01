@@ -68,7 +68,7 @@ class TransactionController extends Controller
                 'trace' => $e->getTraceAsString(),
                 'input' => $request->all(),
             ]);
-            return back()->with('error', $e->getMessage());
+            return back()->with('error', 'Something went wrong. Please try again.');
         }
     }
 
