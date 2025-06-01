@@ -55,7 +55,7 @@ const deleteHandler = (transaction: Transaction) => {
 };
 
 const columnVisibility = <VisibilityState>{
-    description: false,
+    remark: false,
 };
 
 const columns: ColumnDef<Transaction>[] = [
@@ -80,9 +80,9 @@ const columns: ColumnDef<Transaction>[] = [
         cell: ({ row }) => h('div', null, row.getValue('name')),
     },
     {
-        accessorKey: 'description',
-        header: () => h('div', null, 'Description'),
-        cell: ({ row }) => h('div', null, row.getValue('description')),
+        accessorKey: 'remark',
+        header: () => h('div', null, 'Remark'),
+        cell: ({ row }) => h('div', null, row.getValue('remark')),
     },
     {
         accessorKey: 'type',

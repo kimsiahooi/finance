@@ -54,7 +54,7 @@ class TransactionController extends Controller
             $request->user()->transactions()
                 ->create($request->validate([
                     'name' => ['required', 'string', 'max:255'],
-                    'description' => ['nullable', 'string'],
+                    'remark' => ['nullable', 'string'],
                     'type' => ['required', Rule::enum(Type::class)],
                     'amount' => ['required', 'numeric', 'decimal:0,2', 'min:0'],
                     'transaction_at' => ['required', 'date', 'before:tomorrow'],

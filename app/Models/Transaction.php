@@ -11,7 +11,7 @@ class Transaction extends Model
     /** @use HasFactory<\Database\Factories\TransactionFactory> */
     use HasFactory;
 
-    protected $fillable = ['name', 'description', 'type', 'amount', 'transaction_at'];
+    protected $fillable = ['name', 'remark', 'type', 'amount', 'transaction_at'];
 
     protected function casts(): array
     {

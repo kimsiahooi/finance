@@ -38,13 +38,13 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 const form = useForm<{
     name: string;
-    description: string;
+    remark: string;
     type: TransactionType;
     amount: string | number;
     transaction_at: Date;
 }>({
     name: '',
-    description: '',
+    remark: '',
     type: 'EXPENSE',
     amount: '',
     transaction_at: new Date(),
@@ -78,9 +78,9 @@ const submit = () =>
                                     <p v-if="form.errors.name" class="text-destructive">{{ form.errors.name }}</p>
                                 </div>
                                 <div class="flex flex-col space-y-1.5">
-                                    <Label>Description</Label>
-                                    <Textarea placeholder="Enter Description" v-model:model-value="form.description" />
-                                    <p v-if="form.errors.description" class="text-destructive">{{ form.errors.description }}</p>
+                                    <Label>Remark</Label>
+                                    <Textarea placeholder="Enter Remark" v-model:model-value="form.remark" />
+                                    <p v-if="form.errors.remark" class="text-destructive">{{ form.errors.remark }}</p>
                                 </div>
                                 <div class="flex flex-col space-y-1.5">
                                     <Label>Type</Label>

@@ -4,7 +4,7 @@ export type TransactionType = 'EXPENSE' | 'INCOME';
 export interface Transaction {
     readonly id: number;
     name: string;
-    description: string | null;
+    remark: string | null;
     type: TransactionTypeLabel;
     amount: string;
     transaction_at: Date;
