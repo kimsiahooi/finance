@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import type { PaginateData } from '@/components/shared/pagination/types';
 import { DataTable, Dropdown } from '@/components/shared/table';
-import type { DropdownAction } from '@/components/shared/table/types';
+import type { DropdownAction, Filter, SearchConfig } from '@/components/shared/table/types';
 import { Button } from '@/components/ui/button';
 import { useFormatDateTime } from '@/composables/useFormatDateTime';
+import { entryOptions } from '@/constants/entries/options';
 import AppLayout from '@/layouts/AppLayout.vue';
 import AppMainLayout from '@/layouts/AppMainLayout.vue';
 import type { BreadcrumbItem } from '@/types';
 import type { Transaction } from '@/types/transactions';
-import { Head } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import type { ColumnDef, VisibilityState } from '@tanstack/vue-table';
 import { ArrowUpDown } from 'lucide-vue-next';
-import { h } from 'vue';
+import { computed, h, reactive } from 'vue';
 
 defineOptions({
     layout: AppMainLayout,
@@ -23,6 +24,17 @@ defineProps<{
 
 const { formatDateTime } = useFormatDateTime();
 
+const routeParams = computed(() => route().params);
+
+const filter = reactive<Filter>({
+    search: routeParams.value.search,
+    entries: routeParams.value.entries || '10',
+});
+
+const searchConfig: SearchConfig = {
+    placeholder: 'Search name...',
+};
+
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
@@ -33,6 +45,10 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: route('transactions.index'),
     },
 ];
+
+const filterChangeHandler = (filter: Filter) => {
+    router.visit(route('transactions.index', { ...filter }));
+};
 
 const deleteHandler = (transaction: Transaction) => {
     console.log(transaction);
@@ -112,7 +128,15 @@ const columns: ColumnDef<Transaction>[] = [
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
             <div>
                 <div>
-                    <DataTable :columns="columns" :paginate-data="transactions" :column-visibility="columnVisibility" />
+                    <DataTable
+                        :columns="columns"
+                        :paginate-data="transactions"
+                        :column-visibility="columnVisibility"
+                        :filter="filter"
+                        :entry-options="entryOptions"
+                        :search-config="searchConfig"
+                        @filter-change="filterChangeHandler"
+                    />
                 </div>
             </div>
         </div>

@@ -22,3 +22,12 @@ export interface DropdownHandler {
 }
 
 export type DropdownAction = DropdownLink | DropdownHandler;
+
+export interface Filter {
+    search: string;
+    entries: string;
+}
+
+export interface SearchConfig {
+    placeholder: string;
+}
