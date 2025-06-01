@@ -6,7 +6,6 @@ use App\Enums\Transaction\Type;
 use App\Models\Transaction;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class TransactionController extends Controller
@@ -62,7 +61,7 @@ class TransactionController extends Controller
 
             return back()->with('success', 'Transaction created successfully.');
         } catch (QueryException $e) {
-            return back()->with('error', $e->getMessage());
+            return back()->setStatusCode(400)->with('error', $e->getMessage());
         }
     }
 
