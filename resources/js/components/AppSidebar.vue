@@ -19,6 +19,11 @@ const mainNavItems: NavItem[] = [
         href: route('transactions.index'),
         icon: LayoutGrid,
     },
+    {
+        title: 'Categories',
+        href: route('transactions.categories.index'),
+        icon: LayoutGrid,
+    },
 ];
 
 const footerNavItems: NavItem[] = [

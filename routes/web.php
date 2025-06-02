@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\TransactionCategoryController;
 use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -16,6 +17,9 @@ Route::middleware(['auth'])->group(function () {
     })->name('dashboard');
 
     Route::resource('transactions', TransactionController::class)->except(['show']);
+    Route::resource('transactions/categories', TransactionCategoryController::class)
+        ->names('transactions.categories')
+        ->except(['show']);
 });
 
 require __DIR__ . '/settings.php';

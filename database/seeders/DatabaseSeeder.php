@@ -2,8 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Eloquent\Factories\Sequence;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -17,6 +15,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UserSeeder::class,
             TransactionSeeder::class,
+            TransactionCategorySeeder::class,
         ]);
     }
 }

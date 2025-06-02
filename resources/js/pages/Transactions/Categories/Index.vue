@@ -10,7 +10,7 @@ import { entryOptions } from '@/constants/entries/options';
 import AppLayout from '@/layouts/AppLayout.vue';
 import AppMainLayout from '@/layouts/AppMainLayout.vue';
 import type { BreadcrumbItem } from '@/types';
-import type { Transaction } from '@/types/transactions';
+import type { TransactionCategory } from '@/types/transactions';
 import { Head, Link, router } from '@inertiajs/vue3';
 import type { ColumnDef } from '@tanstack/vue-table';
 import { computed, h, reactive, watch } from 'vue';
@@ -20,7 +20,7 @@ defineOptions({
 });
 
 defineProps<{
-    transactions: PaginateData<Transaction[]>;
+    categories: PaginateData<TransactionCategory[]>;
 }>();
 
 const { formatDateTime } = useFormatDateTime();
@@ -32,7 +32,7 @@ const filter = reactive<Filter>({
     entries: routeParams.value.entries || '10',
 });
 
-const deleteDialog = reactive<DeleteDialogType<Transaction>>({
+const deleteDialog = reactive<DeleteDialogType<TransactionCategory>>({
     isDeleting: false,
     isOpen: false,
     title: '',
@@ -52,14 +52,18 @@ const breadcrumbs: BreadcrumbItem[] = [
         title: 'Transactions',
         href: route('transactions.index'),
     },
+    {
+        title: 'Categories',
+        href: route('transactions.categories.index'),
+    },
 ];
 
 const filterChangeHandler = (filter: Filter) => {
-    router.visit(route('transactions.index', { ...filter }));
+    router.visit(route('transactions.categories.index', { ...filter }));
 };
 
-const setDeleteDialog = (transaction: Transaction) => {
-    deleteDialog.data = transaction;
+const setDeleteDialog = (category: TransactionCategory) => {
+    deleteDialog.data = category;
 };
 
 const resetHandler = () => {
@@ -69,7 +73,7 @@ const resetHandler = () => {
 const deleteHandler = () => {
     if (deleteDialog.data && !deleteDialog.isDeleting) {
         deleteDialog.isDeleting = true;
-        router.visit(route('transactions.destroy', { transaction: deleteDialog.data.id }), {
+        router.visit(route('transactions.categories.destroy', { category: deleteDialog.data.id }), {
             method: 'delete',
             onFinish: () => {
                 deleteDialog.isDeleting = false;
@@ -79,44 +83,20 @@ const deleteHandler = () => {
     }
 };
 
-const columnVisibility = <VisibilityState<Transaction>>{
-    remark: false,
-    created_at: false,
+const columnVisibility = <VisibilityState<TransactionCategory>>{
+    description: false,
 };
 
-const columns: ColumnDef<Transaction>[] = [
+const columns: ColumnDef<TransactionCategory>[] = [
     {
         accessorKey: 'name',
         header: () => h('div', null, 'Name'),
         cell: ({ row }) => h('div', null, row.getValue('name')),
     },
     {
-        accessorKey: 'remark',
-        header: () => h('div', null, 'Remark'),
-        cell: ({ row }) => h('div', null, row.getValue('remark')),
-    },
-    {
-        accessorKey: 'type',
-        header: () => h('div', null, 'Type'),
-        cell: ({ row }) => {
-            const { type_display } = row.original;
-
-            return h('div', null, type_display);
-        },
-    },
-    {
-        accessorKey: 'amount',
-        header: () => h('div', { class: 'text-center' }, 'Amount'),
-        cell: ({ row }) => {
-            const { type_display } = row.original;
-
-            return h('div', { class: ['text-center', { 'text-destructive': type_display !== 'Income' }] }, row.getValue('amount'));
-        },
-    },
-    {
-        accessorKey: 'transaction_at',
-        header: () => h('div', { class: 'text-center' }, 'Transaction At'),
-        cell: ({ row }) => h('div', { class: 'text-center' }, formatDateTime(row.getValue('transaction_at')) || undefined),
+        accessorKey: 'description',
+        header: () => h('div', null, 'Description'),
+        cell: ({ row }) => h('div', null, row.getValue('description')),
     },
     {
         accessorKey: 'created_at',
@@ -127,7 +107,7 @@ const columns: ColumnDef<Transaction>[] = [
         id: 'actions',
         enableHiding: false,
         cell: ({ row }) => {
-            const transaction = row.original;
+            const category = row.original;
 
             return h(
                 'div',
@@ -137,12 +117,12 @@ const columns: ColumnDef<Transaction>[] = [
                         {
                             name: 'Edit',
                             type: 'link',
-                            url: route('transactions.edit', { transaction: transaction.id }),
+                            url: route('transactions.categories.edit', { category: category.id }),
                         },
                         {
                             name: 'Delete',
                             type: 'button',
-                            onClick: () => setDeleteDialog(transaction),
+                            onClick: () => setDeleteDialog(category),
                         },
                     ],
                 }),
@@ -166,20 +146,20 @@ watch(
 </script>
 
 <template>
-    <Head title="Transaction List" />
+    <Head title="Transaction Category List" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
             <div class="space-y-3">
                 <div class="flex flex-wrap items-center justify-end gap-2">
-                    <Link :href="route('transactions.create')" as-child>
+                    <Link :href="route('transactions.categories.create')" as-child>
                         <Button class="cursor-pointer">Create</Button>
                     </Link>
                 </div>
                 <div>
                     <DataTable
                         :columns="columns"
-                        :paginate-data="transactions"
+                        :paginate-data="categories"
                         :column-visibility="columnVisibility"
                         :filter="filter"
                         :entry-options="entryOptions"

@@ -14,3 +14,13 @@ export interface Transaction {
     updated_at: Date | null;
     deleted_at: Date | null;
 }
+
+export interface TransactionCategory {
+    readonly id: number;
+    name: string;
+    description: string | null;
+    user_id: number;
+    created_at: Date | null;
+    updated_at: Date | null;
+    deleted_at: Date | null;
+}
