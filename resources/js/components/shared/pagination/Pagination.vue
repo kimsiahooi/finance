@@ -44,7 +44,7 @@ const props = withDefaults(
                 <template v-for="(item, index) in items" :key="index">
                     <PaginationButton
                         v-if="item.type === 'page'"
-                        class="md:inline-block"
+                        class="md:inline-flex"
                         :class="{
                             hidden: item.value !== page,
                         }"
@@ -52,7 +52,7 @@ const props = withDefaults(
                         :is-active="item.value === page"
                         :links="paginateData.links"
                     />
-                    <PaginationEllipsis v-else class="hidden md:inline-block" />
+                    <PaginationEllipsis v-else class="hidden md:inline-flex" />
                 </template>
                 <Link v-if="paginateData.next_page_url" :href="paginateData.next_page_url" as-child>
                     <Button size="icon" variant="outline" class="cursor-pointer">
