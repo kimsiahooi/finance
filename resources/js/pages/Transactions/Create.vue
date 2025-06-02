@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { DateTimePicker } from '@/components/shared/calendar';
+import { MultiCombobox } from '@/components/shared/combobox';
+import { ErrorMessages } from '@/components/shared/error';
 import { Select } from '@/components/shared/select';
 import type { SelectOption } from '@/components/shared/select/types';
 import { Button } from '@/components/ui/button';
@@ -10,15 +12,17 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/AppLayout.vue';
 import AppMainLayout from '@/layouts/AppMainLayout.vue';
 import type { BreadcrumbItem } from '@/types';
-import type { TransactionType } from '@/types/transactions';
+import type { TransactionCategory, TransactionType } from '@/types/transactions';
 import { Head, useForm } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 defineOptions({
     layout: AppMainLayout,
 });
 
-defineProps<{
+const props = defineProps<{
     types: SelectOption[];
+    categories: TransactionCategory[];
 }>();
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -39,16 +43,20 @@ const breadcrumbs: BreadcrumbItem[] = [
 const form = useForm<{
     name: string;
     remark: string;
+    categories: number[];
     type: TransactionType;
     amount: string | number;
     transaction_at: Date;
 }>({
     name: '',
     remark: '',
+    categories: [],
     type: 'EXPENSE',
     amount: '',
     transaction_at: new Date(),
 });
+
+const categoryOptions = computed<SelectOption[]>(() => props.categories.map((category) => ({ name: category.name, value: category.id })));
 
 const submit = () => form.post(route('transactions.store'));
 </script>
@@ -76,6 +84,16 @@ const submit = () => form.post(route('transactions.store'));
                                     <Label>Remark</Label>
                                     <Textarea placeholder="Enter Remark" v-model:model-value="form.remark" />
                                     <p v-if="form.errors.remark" class="text-destructive">{{ form.errors.remark }}</p>
+                                </div>
+                                <div class="flex w-full flex-col space-y-1.5 overflow-x-hidden">
+                                    <Label>Categories</Label>
+                                    <MultiCombobox
+                                        v-model="form.categories"
+                                        :options="categoryOptions"
+                                        placeholder="Select Categories"
+                                        empty-placeholder="No category found."
+                                    />
+                                    <ErrorMessages error-key="categories" />
                                 </div>
                                 <div class="flex flex-col space-y-1.5">
                                     <Label>Type</Label>

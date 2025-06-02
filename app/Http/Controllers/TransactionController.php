@@ -32,7 +32,7 @@ class TransactionController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
         $types = collect(Type::cases())
             ->map(function (Type $type) {
@@ -42,8 +42,11 @@ class TransactionController extends Controller
                 ];
             });
 
+        $categories = $request->user()->transactionCategories()->get();
+
         return inertia('Transactions/Create', [
             'types' => $types,
+            'categories' => $categories,
         ]);
     }
 
@@ -53,14 +56,22 @@ class TransactionController extends Controller
     public function store(Request $request)
     {
         try {
-            $request->user()->transactions()
+            $transaction = $request->user()->transactions()
                 ->create($request->validate([
                     'name' => ['required', 'string', 'max:255'],
                     'remark' => ['nullable', 'string'],
+                    'categories' => ['required', 'array'],
+                    'categories.*' => ['required', 'integer', Rule::exists('transaction_categories', 'id')
+                        ->where(
+                            fn($query) => $query->where('user_id', $request->user()->id)
+                                ->whereNull('deleted_at')
+                        )],
                     'type' => ['required', Rule::enum(Type::class)],
                     'amount' => ['required', 'numeric', 'decimal:0,2', 'min:0'],
                     'transaction_at' => ['required', 'date', 'before:tomorrow'],
                 ]));
+
+            $transaction->categories()->sync($request->categories);
 
             return back()->with('success', 'Transaction created successfully.');
         } catch (QueryException $e) {
@@ -81,7 +92,7 @@ class TransactionController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Transaction $transaction)
+    public function edit(Transaction $transaction, Request $request)
     {
         Gate::authorize('update', $transaction);
 
@@ -93,9 +104,12 @@ class TransactionController extends Controller
                 ];
             });
 
+        $categories = $request->user()->transactionCategories()->get();
+
         return inertia('Transactions/Edit', [
             'transaction' => $transaction->load(['categories']),
             'types' => $types,
+            'categories' => $categories,
         ]);
     }
 
@@ -110,10 +124,18 @@ class TransactionController extends Controller
             $transaction->update($request->validate([
                 'name' => ['required', 'string', 'max:255'],
                 'remark' => ['nullable', 'string'],
+                'categories' => ['required', 'array'],
+                'categories.*' => ['required', 'integer', Rule::exists('transaction_categories', 'id')
+                    ->where(
+                        fn($query) => $query->where('user_id', $request->user()->id)
+                            ->whereNull('deleted_at')
+                    )],
                 'type' => ['required', Rule::enum(Type::class)],
                 'amount' => ['required', 'numeric', 'decimal:0,2', 'min:0'],
                 'transaction_at' => ['required', 'date', 'before:tomorrow'],
             ]));
+
+            $transaction->categories()->sync($request->categories);
 
             return back()->with('success', 'Transaction updated successfully.');
         } catch (QueryException $e) {

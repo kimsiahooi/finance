@@ -23,17 +23,17 @@ const props = defineProps<{
     emptyPlaceholder: string;
 }>();
 
-const model = defineModel<AcceptableValue | undefined>();
+const model = defineModel<AcceptableValue[] | undefined>();
 
-const value = ref<SelectOption | undefined>(props.options.find((option) => model.value === option.value));
+const value = ref<SelectOption[] | undefined>(props.options.filter((option) => model.value?.includes(option.value)));
 
 const emits = defineEmits<{
-    'update:value': [AcceptableValue];
+    'update:value': [AcceptableValue[]];
 }>();
 
 watch(value, (newValue) => {
-    if (newValue?.value) {
-        model.value = newValue.value;
+    if (newValue) {
+        model.value = newValue.map((v) => v.value);
     }
 });
 
@@ -45,11 +45,11 @@ watch(model, (newValue) => {
 </script>
 
 <template>
-    <Combobox v-model="value" by="name">
+    <Combobox v-model="value" by="name" multiple>
         <ComboboxAnchor as-child>
             <ComboboxTrigger as-child>
                 <Button variant="outline" class="w-full justify-between">
-                    {{ value?.name ?? placeholder }}
+                    {{ value?.length ? value.map((v) => v.name).join(', ') : placeholder }}
                     <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
             </ComboboxTrigger>

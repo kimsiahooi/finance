@@ -81,7 +81,6 @@ const deleteHandler = () => {
 
 const columnVisibility = <VisibilityState<TransactionWithCategories>>{
     remark: false,
-    categories: false,
     created_at: false,
 };
 
@@ -90,11 +89,6 @@ const columns: ColumnDef<TransactionWithCategories>[] = [
         accessorKey: 'name',
         header: () => h('div', null, 'Name'),
         cell: ({ row }) => h('div', null, row.getValue('name')),
-    },
-    {
-        accessorKey: 'remark',
-        header: () => h('div', null, 'Remark'),
-        cell: ({ row }) => h('div', null, row.getValue('remark')),
     },
     {
         accessorKey: 'categories',
@@ -126,6 +120,11 @@ const columns: ColumnDef<TransactionWithCategories>[] = [
         accessorKey: 'transaction_at',
         header: () => h('div', { class: 'text-center' }, 'Transaction At'),
         cell: ({ row }) => h('div', { class: 'text-center' }, formatDateTime(row.getValue('transaction_at')) || undefined),
+    },
+    {
+        accessorKey: 'remark',
+        header: () => h('div', null, 'Remark'),
+        cell: ({ row }) => h('div', null, row.getValue('remark')),
     },
     {
         accessorKey: 'created_at',
