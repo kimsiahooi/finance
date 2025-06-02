@@ -4,7 +4,7 @@ import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMe
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { valueUpdater } from '@/lib/utils';
-import type { ColumnDef, SortingState, VisibilityState } from '@tanstack/vue-table';
+import type { ColumnDef, SortingState } from '@tanstack/vue-table';
 import { FlexRender, getCoreRowModel, getSortedRowModel, useVueTable } from '@tanstack/vue-table';
 import { ChevronDown } from 'lucide-vue-next';
 import { computed, reactive, ref } from 'vue';
@@ -12,7 +12,7 @@ import { Pagination } from '../pagination';
 import type { PaginateData } from '../pagination/types';
 import { Select } from '../select';
 import type { SelectOption } from '../select/types';
-import type { Filter, SearchConfig } from './types';
+import type { Filter, SearchConfig, VisibilityState } from './types';
 
 const props = withDefaults(
     defineProps<{

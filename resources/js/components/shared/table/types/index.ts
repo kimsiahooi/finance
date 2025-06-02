@@ -31,3 +31,5 @@ export interface Filter {
 export interface SearchConfig {
     placeholder: string;
 }
+
+export type VisibilityState<T extends object = object> = Record<keyof T, boolean>;

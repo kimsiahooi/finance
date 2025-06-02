@@ -3,7 +3,7 @@ import { DeleteDialog } from '@/components/shared/dialog';
 import type { DeleteDialogType } from '@/components/shared/dialog/types';
 import type { PaginateData } from '@/components/shared/pagination/types';
 import { DataTable, Dropdown } from '@/components/shared/table';
-import type { DropdownAction, Filter, SearchConfig } from '@/components/shared/table/types';
+import type { DropdownAction, Filter, SearchConfig, VisibilityState } from '@/components/shared/table/types';
 import { Button } from '@/components/ui/button';
 import { useFormatDateTime } from '@/composables/useFormatDateTime';
 import { entryOptions } from '@/constants/entries/options';
@@ -12,7 +12,7 @@ import AppMainLayout from '@/layouts/AppMainLayout.vue';
 import type { BreadcrumbItem } from '@/types';
 import type { Transaction } from '@/types/transactions';
 import { Head, Link, router } from '@inertiajs/vue3';
-import type { ColumnDef, VisibilityState } from '@tanstack/vue-table';
+import type { ColumnDef } from '@tanstack/vue-table';
 import { computed, h, reactive, watch } from 'vue';
 
 defineOptions({
@@ -79,7 +79,7 @@ const deleteHandler = () => {
     }
 };
 
-const columnVisibility = <VisibilityState>{
+const columnVisibility = <VisibilityState<Transaction>>{
     remark: false,
 };
 
