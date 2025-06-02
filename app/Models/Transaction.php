@@ -26,6 +26,11 @@ class Transaction extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function categories()
+    {
+        return $this->belongsToMany(TransactionCategory::class)->withTimestamps();
+    }
+
     public function getTypeDisplayAttribute()
     {
         return Type::from($this->type)?->display();

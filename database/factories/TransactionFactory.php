@@ -19,7 +19,7 @@ class TransactionFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->sentence(),
+            'name' => fake()->sentence(3),
             'remark' => fake()->sentence(12),
             'type' => fake()->randomElement(Type::cases()),
             'amount' => fake()->numberBetween(0, 99),

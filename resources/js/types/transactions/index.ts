@@ -24,3 +24,7 @@ export interface TransactionCategory {
     updated_at: Date | null;
     deleted_at: Date | null;
 }
+
+export interface TransactionWithCategories extends Transaction {
+    categories: TransactionCategory[];
+}

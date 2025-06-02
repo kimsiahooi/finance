@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/AppLayout.vue';
 import AppMainLayout from '@/layouts/AppMainLayout.vue';
 import type { BreadcrumbItem } from '@/types';
-import type { Transaction, TransactionType } from '@/types/transactions';
+import type { TransactionType, TransactionWithCategories } from '@/types/transactions';
 import { Head, useForm } from '@inertiajs/vue3';
 
 defineOptions({
@@ -18,7 +18,7 @@ defineOptions({
 });
 
 const props = defineProps<{
-    transaction: Transaction;
+    transaction: TransactionWithCategories;
     types: SelectOption[];
 }>();
 

@@ -14,7 +14,7 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->count(10)->sequence(fn(Sequence $sequence) => [
+        User::factory(10)->sequence(fn(Sequence $sequence) => [
             'name' => 'admin' . ($sequence->index ? $sequence->index : ''),
             'email' => 'admin' . ($sequence->index ? $sequence->index : '') . '@gmail.com',
         ])->create();

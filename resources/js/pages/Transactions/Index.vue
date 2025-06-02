@@ -10,7 +10,7 @@ import { entryOptions } from '@/constants/entries/options';
 import AppLayout from '@/layouts/AppLayout.vue';
 import AppMainLayout from '@/layouts/AppMainLayout.vue';
 import type { BreadcrumbItem } from '@/types';
-import type { Transaction } from '@/types/transactions';
+import type { TransactionWithCategories } from '@/types/transactions';
 import { Head, Link, router } from '@inertiajs/vue3';
 import type { ColumnDef } from '@tanstack/vue-table';
 import { computed, h, reactive, watch } from 'vue';
@@ -20,7 +20,7 @@ defineOptions({
 });
 
 defineProps<{
-    transactions: PaginateData<Transaction[]>;
+    transactions: PaginateData<TransactionWithCategories[]>;
 }>();
 
 const { formatDateTime } = useFormatDateTime();
@@ -32,7 +32,7 @@ const filter = reactive<Filter>({
     entries: routeParams.value.entries || '10',
 });
 
-const deleteDialog = reactive<DeleteDialogType<Transaction>>({
+const deleteDialog = reactive<DeleteDialogType<TransactionWithCategories>>({
     isDeleting: false,
     isOpen: false,
     title: '',
@@ -58,7 +58,7 @@ const filterChangeHandler = (filter: Filter) => {
     router.visit(route('transactions.index', { ...filter }));
 };
 
-const setDeleteDialog = (transaction: Transaction) => {
+const setDeleteDialog = (transaction: TransactionWithCategories) => {
     deleteDialog.data = transaction;
 };
 
@@ -79,12 +79,13 @@ const deleteHandler = () => {
     }
 };
 
-const columnVisibility = <VisibilityState<Transaction>>{
+const columnVisibility = <VisibilityState<TransactionWithCategories>>{
     remark: false,
+    categories: false,
     created_at: false,
 };
 
-const columns: ColumnDef<Transaction>[] = [
+const columns: ColumnDef<TransactionWithCategories>[] = [
     {
         accessorKey: 'name',
         header: () => h('div', null, 'Name'),
@@ -94,6 +95,14 @@ const columns: ColumnDef<Transaction>[] = [
         accessorKey: 'remark',
         header: () => h('div', null, 'Remark'),
         cell: ({ row }) => h('div', null, row.getValue('remark')),
+    },
+    {
+        accessorKey: 'categories',
+        header: () => h('div', null, 'Categories'),
+        cell: ({ row }) => {
+            const categories = row.original.categories.map((category) => category.name).join(', ');
+            return h('div', null, categories);
+        },
     },
     {
         accessorKey: 'type',

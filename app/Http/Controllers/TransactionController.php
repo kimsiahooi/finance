@@ -19,6 +19,7 @@ class TransactionController extends Controller
     {
         $transactions = Transaction::where('user_id', $request->user()->id)
             ->when($request->search, fn($query) => $query->where('name', 'LIKE', "%$request->search%"))
+            ->with(['categories'])
             ->latest()
             ->paginate($request->query('entries', 10))
             ->withQueryString();
@@ -93,7 +94,7 @@ class TransactionController extends Controller
             });
 
         return inertia('Transactions/Edit', [
-            'transaction' => $transaction,
+            'transaction' => $transaction->load(['categories']),
             'types' => $types,
         ]);
     }
