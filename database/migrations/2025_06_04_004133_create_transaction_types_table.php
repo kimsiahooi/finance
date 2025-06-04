@@ -28,13 +28,21 @@ return new class extends Migration
             $table->unique(['name', 'user_id']);
         });
 
+        Schema::table('transactions', function (Blueprint $table) {
+            $table->foreignIdFor(TransactionType::class)->after('user_id')->nullable()->constrained();
+        });
+
         Transaction::all()->each(function (Transaction $transaction) {
-            TransactionType::firstOrCreate([
+            $transactionType = TransactionType::firstOrCreate([
                 'name' => Type::tryFrom($transaction->type)?->name,
                 'user_id' => $transaction->user_id,
             ], [
                 'description' => null,
                 'direction' => $transaction->type === Type::Expense->value ? Direction::MINUS->value : Direction::PLUS->value,
+            ]);
+
+            $transaction->update([
+                'transaction_type_id' => $transactionType->id,
             ]);
         });
     }
@@ -44,6 +52,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('transactions', function (Blueprint $table) {
+            $table->dropConstrainedForeignIdFor(TransactionType::class);
+        });
+
         Schema::dropIfExists('transaction_types');
     }
 };
