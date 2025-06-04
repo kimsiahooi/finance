@@ -30,7 +30,7 @@ return new class extends Migration
 
         Transaction::all()->each(function (Transaction $transaction) {
             TransactionType::firstOrCreate([
-                'name' => $transaction->type,
+                'name' => Type::tryFrom($transaction->type)?->name,
                 'user_id' => $transaction->user_id,
             ], [
                 'description' => null,
