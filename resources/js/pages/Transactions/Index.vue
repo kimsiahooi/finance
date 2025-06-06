@@ -10,17 +10,22 @@ import { entryOptions } from '@/constants/entries/options';
 import AppLayout from '@/layouts/AppLayout.vue';
 import AppMainLayout from '@/layouts/AppMainLayout.vue';
 import type { BreadcrumbItem } from '@/types';
-import type { TransactionWithCategories } from '@/types/transactions';
+import type { Transaction, TransactionCategory, TransactionType } from '@/types/transactions';
 import { Head, Link, router } from '@inertiajs/vue3';
 import type { ColumnDef } from '@tanstack/vue-table';
 import { computed, h, reactive, watch } from 'vue';
+
+interface TransactionProps extends Transaction {
+    categories: TransactionCategory[];
+    transaction_type: TransactionType;
+}
 
 defineOptions({
     layout: AppMainLayout,
 });
 
 defineProps<{
-    transactions: PaginateData<TransactionWithCategories[]>;
+    transactions: PaginateData<TransactionProps[]>;
 }>();
 
 const { formatDateTime } = useFormatDateTime();
@@ -32,7 +37,7 @@ const filter = reactive<Filter>({
     entries: routeParams.value.entries || '10',
 });
 
-const deleteDialog = reactive<DeleteDialogType<TransactionWithCategories>>({
+const deleteDialog = reactive<DeleteDialogType<TransactionProps>>({
     isDeleting: false,
     isOpen: false,
     title: '',
@@ -58,7 +63,7 @@ const filterChangeHandler = (filter: Filter) => {
     router.visit(route('transactions.index', { ...filter }));
 };
 
-const setDeleteDialog = (transaction: TransactionWithCategories) => {
+const setDeleteDialog = (transaction: TransactionProps) => {
     deleteDialog.data = transaction;
 };
 
@@ -79,12 +84,12 @@ const deleteHandler = () => {
     }
 };
 
-const columnVisibility = <VisibilityState<TransactionWithCategories>>{
+const columnVisibility = <VisibilityState<TransactionProps>>{
     remark: false,
     created_at: false,
 };
 
-const columns: ColumnDef<TransactionWithCategories>[] = [
+const columns: ColumnDef<TransactionProps>[] = [
     {
         accessorKey: 'name',
         header: () => h('div', null, 'Name'),
@@ -101,19 +106,17 @@ const columns: ColumnDef<TransactionWithCategories>[] = [
     {
         accessorKey: 'type',
         header: () => h('div', null, 'Type'),
-        cell: ({ row }) => {
-            const { type_display } = row.original;
-
-            return h('div', null, type_display);
-        },
+        cell: ({ row }) => h('div', null, row.original.transaction_type.name),
     },
     {
         accessorKey: 'amount',
         header: () => h('div', { class: 'text-center' }, 'Amount'),
         cell: ({ row }) => {
-            const { type_display } = row.original;
-
-            return h('div', { class: ['text-center', { 'text-destructive': type_display !== 'Income' }] }, row.getValue('amount'));
+            return h(
+                'div',
+                { class: ['text-center', { 'text-destructive': row.original.transaction_type.direction === 'MINUS' }] },
+                row.getValue('amount'),
+            );
         },
     },
     {

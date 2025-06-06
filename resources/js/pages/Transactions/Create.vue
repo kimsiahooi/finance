@@ -21,7 +21,7 @@ defineOptions({
 });
 
 const props = defineProps<{
-    types: SelectOption[];
+    types: TransactionType[];
     categories: TransactionCategory[];
 }>();
 
@@ -44,19 +44,20 @@ const form = useForm<{
     name: string;
     remark: string;
     categories: number[];
-    type: TransactionType;
-    amount: string | number;
+    transaction_type_id: number | '';
+    amount: number | '';
     transaction_at: Date;
 }>({
     name: '',
     remark: '',
     categories: [],
-    type: 'EXPENSE',
+    transaction_type_id: '',
     amount: '',
     transaction_at: new Date(),
 });
 
 const categoryOptions = computed<SelectOption[]>(() => props.categories.map((category) => ({ name: category.name, value: category.id })));
+const typeOptions = computed<SelectOption[]>(() => props.types.map((type) => ({ name: type.name, value: type.id })));
 
 const submit = () => form.post(route('transactions.store'));
 </script>
@@ -97,8 +98,13 @@ const submit = () => form.post(route('transactions.store'));
                                 </div>
                                 <div class="flex flex-col space-y-1.5">
                                     <Label>Type</Label>
-                                    <Select :options="types" placeholder="Select type" v-model="form.type" trigger-class="w-full" />
-                                    <p v-if="form.errors.type" class="text-destructive">{{ form.errors.type }}</p>
+                                    <Select
+                                        :options="typeOptions"
+                                        placeholder="Select type"
+                                        v-model="form.transaction_type_id"
+                                        trigger-class="w-full"
+                                    />
+                                    <p v-if="form.errors.transaction_type_id" class="text-destructive">{{ form.errors.transaction_type_id }}</p>
                                 </div>
                                 <div class="flex flex-col space-y-1.5">
                                     <Label>Amount</Label>

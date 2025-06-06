@@ -19,7 +19,7 @@ class TransactionController extends Controller
     {
         $transactions = Transaction::where('user_id', $request->user()->id)
             ->when($request->search, fn($query) => $query->where('name', 'LIKE', "%$request->search%"))
-            ->with(['categories'])
+            ->with(['categories', 'transactionType'])
             ->latest()
             ->paginate($request->query('entries', 10))
             ->withQueryString();
@@ -34,15 +34,9 @@ class TransactionController extends Controller
      */
     public function create(Request $request)
     {
-        $types = collect(Type::cases())
-            ->map(function (Type $type) {
-                return [
-                    'name' => $type->display(),
-                    'value' => $type->value,
-                ];
-            });
 
         $categories = $request->user()->transactionCategories()->get();
+        $types = $request->user()->transactionTypes()->get();
 
         return inertia('Transactions/Create', [
             'types' => $types,
@@ -66,7 +60,11 @@ class TransactionController extends Controller
                             fn($query) => $query->where('user_id', $request->user()->id)
                                 ->whereNull('deleted_at')
                         )],
-                    'type' => ['required', Rule::enum(Type::class)],
+                    'transaction_type_id' => ['required', 'integer', Rule::exists('transaction_types', 'id')
+                        ->where(
+                            fn($query) => $query->where('user_id', $request->user()->id)
+                                ->whereNull('deleted_at')
+                        )],
                     'amount' => ['required', 'numeric', 'decimal:0,2', 'min:0'],
                     'transaction_at' => ['required', 'date', 'before:tomorrow'],
                 ]));
@@ -96,18 +94,11 @@ class TransactionController extends Controller
     {
         Gate::authorize('update', $transaction);
 
-        $types = collect(Type::cases())
-            ->map(function (Type $type) {
-                return [
-                    'name' => $type->display(),
-                    'value' => $type->value,
-                ];
-            });
-
         $categories = $request->user()->transactionCategories()->get();
+        $types = $request->user()->transactionTypes()->get();
 
         return inertia('Transactions/Edit', [
-            'transaction' => $transaction->load(['categories']),
+            'transaction' => $transaction->load(['transactionType', 'categories']),
             'types' => $types,
             'categories' => $categories,
         ]);
@@ -130,7 +121,11 @@ class TransactionController extends Controller
                         fn($query) => $query->where('user_id', $request->user()->id)
                             ->whereNull('deleted_at')
                     )],
-                'type' => ['required', Rule::enum(Type::class)],
+                'transaction_type_id' => ['required', 'integer', Rule::exists('transaction_types', 'id')
+                    ->where(
+                        fn($query) => $query->where('user_id', $request->user()->id)
+                            ->whereNull('deleted_at')
+                    )],
                 'amount' => ['required', 'numeric', 'decimal:0,2', 'min:0'],
                 'transaction_at' => ['required', 'date', 'before:tomorrow'],
             ]));

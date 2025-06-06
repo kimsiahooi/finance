@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\Transaction\Type;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -11,8 +10,7 @@ class Transaction extends Model
     /** @use HasFactory<\Database\Factories\TransactionFactory> */
     use HasFactory;
 
-    protected $fillable = ['name', 'remark', 'type', 'amount', 'transaction_at', 'user_id', 'transaction_type_id'];
-    protected $appends = ['type_display'];
+    protected $fillable = ['name', 'remark', 'amount', 'transaction_at', 'user_id', 'transaction_type_id'];
 
     protected function casts(): array
     {
@@ -31,13 +29,8 @@ class Transaction extends Model
         return $this->belongsToMany(TransactionCategory::class)->withTimestamps();
     }
 
-    public function type()
+    public function transactionType()
     {
         return $this->belongsTo(TransactionType::class);
-    }
-
-    public function getTypeDisplayAttribute()
-    {
-        return Type::from($this->type)?->display();
     }
 }

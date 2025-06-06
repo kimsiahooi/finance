@@ -7,6 +7,7 @@ use App\Models\TransactionType;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -44,6 +45,12 @@ return new class extends Migration
             $transaction->update([
                 'transaction_type_id' => $transactionType->id,
             ]);
+        });
+
+        DB::statement('ALTER TABLE transactions MODIFY transaction_type_id BIGINT UNSIGNED NOT NULL');
+
+        Schema::table('transactions', function (Blueprint $table) {
+            $table->dropColumn('type');
         });
     }
 

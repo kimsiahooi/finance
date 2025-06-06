@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\TransactionCategoryController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\TransactionTypeController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -19,6 +20,9 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('transactions', TransactionController::class)->except(['show']);
     Route::resource('transactions/categories', TransactionCategoryController::class)
         ->names('transactions.categories')
+        ->except(['show']);
+    Route::resource('transactions/types', TransactionTypeController::class)
+        ->names('transactions.types')
         ->except(['show']);
 });
 
