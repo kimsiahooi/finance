@@ -10,9 +10,22 @@ class TransactionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $entries = $request->query('entries', 10);
+
+        $user = $request->user();
+
+        $transactions = $user
+            ->transactions()
+            ->latest()
+            ->paginate($entries)
+            ->withQueryString();
+
+        return inertia('Transactions/Index', [
+            'transactions' => $transactions,
+            'total_amount' => $transactions->sum('amount'),
+        ]);
     }
 
     /**
