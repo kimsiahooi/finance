@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->decimal('amount');
+            $table->text('remark')->nullable();
             $table->timestamp('transactioned_at');
             $table->timestamps();
             $table->softDeletes();

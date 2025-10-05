@@ -21,6 +21,7 @@ class TransactionFactory extends Factory
             'user_id' => User::inRandomOrder()->first(),
             'name' => fake()->sentence(2),
             'amount' => fake()->numberBetween(-99, 99),
+            'remark' => fake()->optional()->sentence(),
             'transactioned_at' => fake()->dateTimeBetween('-2 year'),
         ];
     }

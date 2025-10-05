@@ -16,8 +16,7 @@ class TransactionController extends Controller
 
         $user = $request->user();
 
-        $transactions = $user
-            ->transactions()
+        $transactions = $user->transactions()
             ->latest()
             ->paginate($entries)
             ->withQueryString();
@@ -41,7 +40,22 @@ class TransactionController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'amount' => ['required', 'numeric', 'min:0'],
+            'expense' => ['sometimes', 'in:on'],
+            'remark' => ['nullable', 'string'],
+        ]);
+
+        if (isset($validated['expense'])) {
+            $validated['amount'] = $validated['amount'] * -1;
+        }
+
+        $validated['transactioned_at'] = now();
+
+        $request->user()->transactions()->create($validated);
+
+        return back()->with('success', 'Transaction created successfully.');
     }
 
     /**
