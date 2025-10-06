@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import {
+    FilterCalendar,
+    FilterCard,
+    FilterInput,
+} from '@/components/shared/custom/filter';
 import { PaginateData } from '@/components/shared/pagination';
 import { DataTable } from '@/components/shared/table';
 import { Button } from '@/components/ui/button';
@@ -26,6 +31,7 @@ import { Filter } from '@/types/shared';
 import { Transaction } from '@/types/transactions';
 import { Form, Head, router } from '@inertiajs/vue3';
 import { ColumnDef, VisibilityState } from '@tanstack/vue-table';
+import { pickBy } from 'lodash-es';
 import { Loader } from 'lucide-vue-next';
 import { computed, h, reactive, ref, watch } from 'vue';
 
@@ -35,7 +41,9 @@ defineOptions({
 
 const props = defineProps<{
     transactions: PaginateData<Transaction[]>;
-    total_amount: number;
+    report: {
+        total_amount: number;
+    };
 }>();
 
 const { params } = useRouteParams();
@@ -78,8 +86,8 @@ const columns = computed<ColumnDef<Transaction>[]>(() => [
         footer: () =>
             h(
                 'div',
-                { class: props.total_amount < 0 && 'text-destructive' },
-                props.total_amount.toLocaleString(undefined, {
+                { class: props.report.total_amount < 0 && 'text-destructive' },
+                props.report.total_amount.toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                 }),
@@ -102,29 +110,62 @@ const columns = computed<ColumnDef<Transaction>[]>(() => [
     },
 ]);
 
-const columnVisibility: VisibilityState = {};
-
-const state = reactive({
-    open: false,
-});
+const columnVisibility = computed<VisibilityState>(() => ({}));
 
 const filter = ref<Filter>({
     entries: params.get('entries') ?? '10',
+    search: params.get('search') ?? undefined,
+    start_date: params.get('start_date') ?? undefined,
+    end_date: params.get('end_date') ?? undefined,
 });
+
+const state = reactive<{
+    open: boolean;
+    start_date?: Date;
+    end_date?: Date;
+}>({
+    open: false,
+    start_date: filter.value.start_date
+        ? new Date(filter.value.start_date)
+        : undefined,
+    end_date: filter.value.end_date
+        ? new Date(filter.value.end_date)
+        : undefined,
+});
+
+const search = () =>
+    router.visit(
+        TransactionRoute.index({
+            query: pickBy(filter.value),
+        }),
+        {
+            preserveScroll: true,
+            preserveState: true,
+        },
+    );
+
+const reset = () =>
+    router.visit(TransactionRoute.index(), {
+        preserveScroll: true,
+        preserveState: true,
+    });
 
 const handleSuccess = () => {
     state.open = false;
 };
 
 watch(
-    filter,
-    (newFilter) => {
-        router.visit(TransactionRoute.index({ query: newFilter }), {
-            preserveScroll: true,
-            preserveState: true,
-        });
+    () => state.start_date,
+    (newStartDate) => {
+        filter.value.start_date = newStartDate?.toISOString();
     },
-    { deep: true },
+);
+
+watch(
+    () => state.end_date,
+    (newEndDate) => {
+        filter.value.end_date = newEndDate?.toISOString();
+    },
 );
 </script>
 
@@ -135,6 +176,23 @@ watch(
         <div
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
+            <FilterCard @search="search" @reset="reset">
+                <FilterInput
+                    label="Name"
+                    placeholder="Search ID, Name, Remark"
+                    v-model:model-value="filter.search"
+                />
+                <FilterCalendar
+                    label="Transaction Start Date"
+                    placeholder="Select Transaction Start Date"
+                    v-model:model-value="state.start_date"
+                />
+                <FilterCalendar
+                    label="Transaction End Date"
+                    placeholder="Select Transaction End Date"
+                    v-model:model-value="state.end_date"
+                />
+            </FilterCard>
             <div class="flex flex-wrap items-center justify-end gap-2">
                 <Dialog v-model:open="state.open">
                     <DialogTrigger as-child>
@@ -235,6 +293,7 @@ watch(
                 :columns="columns"
                 :paginate-data="transactions"
                 :column-visibility="columnVisibility"
+                @search="search"
             />
         </div>
     </AppLayout>

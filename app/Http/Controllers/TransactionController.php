@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Transaction;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class TransactionController extends Controller
@@ -17,13 +18,30 @@ class TransactionController extends Controller
         $user = $request->user();
 
         $transactions = $user->transactions()
+            ->when(
+                $request->search,
+                fn(Builder $query, string $search) =>
+                $query->whereAny(['id', 'name', 'remark'], 'like', "%{$search}%")
+            )
+            ->when(
+                $request->start_date,
+                fn(Builder $query, string $startDate) =>
+                $query->where('transactioned_at', '>=', $startDate)
+            )
+            ->when(
+                $request->end_date,
+                fn(Builder $query, string $endDate) =>
+                $query->where('transactioned_at', '<=', $endDate)
+            )
             ->latest()
             ->paginate($entries)
             ->withQueryString();
 
         return inertia('Transactions/Index', [
             'transactions' => $transactions,
-            'total_amount' => $transactions->sum('amount'),
+            'report' => [
+                'total_amount' => $transactions->sum('amount'),
+            ],
         ]);
     }
 
