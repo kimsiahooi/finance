@@ -5,6 +5,7 @@ import {
     FilterInput,
 } from '@/components/shared/custom/filter';
 import { PaginateData } from '@/components/shared/pagination';
+import { SelectOption } from '@/components/shared/select';
 import { DataTable } from '@/components/shared/table';
 import { Button } from '@/components/ui/button';
 import {
@@ -28,6 +29,7 @@ import { dashboard } from '@/routes';
 import TransactionRoute from '@/routes/transactions';
 import { BreadcrumbItem } from '@/types';
 import { Filter } from '@/types/shared';
+import { TransactionCategory } from '@/types/transaction-categories';
 import { Transaction } from '@/types/transactions';
 import { Form, Head, router } from '@inertiajs/vue3';
 import { ColumnDef, VisibilityState } from '@tanstack/vue-table';
@@ -43,6 +45,11 @@ const props = defineProps<{
     transactions: PaginateData<Transaction[]>;
     report: {
         total_amount: number;
+    };
+    options: {
+        select: {
+            categories: SelectOption<TransactionCategory>[];
+        };
     };
 }>();
 
