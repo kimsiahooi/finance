@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Transaction;
+use App\Models\TransactionCategory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
@@ -16,6 +17,15 @@ class TransactionController extends Controller
         $entries = $request->query('entries', 10);
 
         $user = $request->user();
+
+        $categories = $user->transactionCategories()
+            ->select('id', 'name')
+            ->get()
+            ->map(fn(TransactionCategory $category) =>
+            [
+                'name' => $category->name,
+                'value' => $category->id,
+            ]);
 
         $transactions = $user->transactions()
             ->when(
@@ -41,6 +51,11 @@ class TransactionController extends Controller
             'transactions' => $transactions,
             'report' => [
                 'total_amount' => $transactions->sum('amount'),
+            ],
+            'options' => [
+                'select' => [
+                    'categories' => $categories,
+                ],
             ],
         ]);
     }

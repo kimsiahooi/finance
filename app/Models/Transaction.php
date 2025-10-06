@@ -12,7 +12,7 @@ class Transaction extends Model
     /** @use HasFactory<\Database\Factories\TransactionFactory> */
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['user_id', 'name', 'amount', 'remark', 'transactioned_at'];
+    protected $fillable = ['user_id', 'transaction_category_id', 'name', 'amount', 'remark', 'transactioned_at'];
 
     protected function casts(): array
     {
@@ -24,5 +24,10 @@ class Transaction extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(TransactionCategory::class);
     }
 }

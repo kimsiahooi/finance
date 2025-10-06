@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\TransactionCategory;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -17,8 +18,12 @@ class TransactionFactory extends Factory
      */
     public function definition(): array
     {
+        $user = User::inRandomOrder()->first();
+        $category = TransactionCategory::where('user_id', $user->id)->inRandomOrder()->first();
+
         return [
-            'user_id' => User::inRandomOrder()->first(),
+            'user_id' => $user->id,
+            'transaction_category_id' => fake()->boolean() ? $category->id : null,
             'name' => fake()->sentence(2),
             'amount' => fake()->numberBetween(-99, 99),
             'remark' => fake()->optional()->sentence(),
