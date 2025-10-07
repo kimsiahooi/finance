@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Transaction extends Model
@@ -12,7 +13,7 @@ class Transaction extends Model
     /** @use HasFactory<\Database\Factories\TransactionFactory> */
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['user_id', 'transaction_category_id', 'name', 'amount', 'remark', 'transactioned_at'];
+    protected $fillable = ['user_id', 'name', 'amount', 'remark', 'transactioned_at'];
 
     protected function casts(): array
     {
@@ -26,8 +27,12 @@ class Transaction extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function category(): BelongsTo
+    public function categories(): BelongsToMany
     {
-        return $this->belongsTo(TransactionCategory::class);
+        return $this->belongsToMany(TransactionCategory::class, 'transaction_category', 'transaction_id', 'category_id')
+            ->withTimestamps()
+            ->withPivot(['id', 'user_id', 'deleted_at'])
+            ->wherePivotNull('deleted_at')
+            ->using(TransactionTransactionCategory::class);
     }
 }

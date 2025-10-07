@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TransactionCategory extends Model
@@ -20,8 +20,12 @@ class TransactionCategory extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function transactions(): HasMany
+    public function categories(): BelongsToMany
     {
-        return $this->hasMany(Transaction::class);
+        return $this->belongsToMany(Transaction::class, 'transaction_category', 'category_id')
+            ->withTimestamps()
+            ->withPivot(['id', 'user_id', 'deleted_at'])
+            ->wherePivotNull('deleted_at')
+            ->using(TransactionTransactionCategory::class);
     }
 }

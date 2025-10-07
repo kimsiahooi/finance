@@ -28,6 +28,7 @@ class TransactionController extends Controller
             ]);
 
         $transactions = $user->transactions()
+            ->with(['categories'])
             ->when(
                 $request->search,
                 fn(Builder $query, string $search) =>

@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             TransactionCategorySeeder::class,
             TransactionSeeder::class,
+            TransactionTransactionCategorySeeder::class,
         ]);
     }
 }

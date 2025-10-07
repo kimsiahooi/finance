@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Transaction;
 use App\Models\TransactionCategory;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
@@ -13,16 +14,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('transactions', function (Blueprint $table) {
+        Schema::create('transaction_category', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
-            $table->foreignIdFor(TransactionCategory::class)->nullable()->constrained()->cascadeOnDelete();
-            $table->string('name');
-            $table->decimal('amount');
-            $table->text('remark')->nullable();
-            $table->timestamp('transactioned_at');
+            $table->foreignIdFor(Transaction::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(TransactionCategory::class, 'category_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->unique(['user_id', 'transaction_id', 'category_id']);
         });
     }
 
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('transactions');
+        Schema::dropIfExists('transaction_transaction_category');
     }
 };
