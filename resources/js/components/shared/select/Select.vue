@@ -9,10 +9,12 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import type { AcceptableValue } from 'reka-ui';
+import { HTMLAttributes } from 'vue';
 
 defineProps<{
     options: SelectOption<T>[];
     placeholder: string;
+    triggerClass?: HTMLAttributes['class'];
 }>();
 
 const model = defineModel<T | T[]>();
@@ -20,7 +22,7 @@ const model = defineModel<T | T[]>();
 
 <template>
     <Select v-model:model-value="model" :disabled="!options.length">
-        <SelectTrigger class="min-w-40" v-bind="$attrs">
+        <SelectTrigger class="min-w-40" :class="triggerClass">
             <SelectValue :placeholder="placeholder" />
         </SelectTrigger>
         <SelectContent>

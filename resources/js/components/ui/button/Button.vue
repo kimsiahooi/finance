@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { PrimitiveProps } from "reka-ui"
-import type { HTMLAttributes } from "vue"
+import { useTemplateRef, type HTMLAttributes } from "vue"
 import type { ButtonVariants } from "."
 import { Primitive } from "reka-ui"
 import { cn } from "@/lib/utils"
@@ -15,6 +15,12 @@ interface Props extends PrimitiveProps {
 const props = withDefaults(defineProps<Props>(), {
   as: "button",
 })
+
+const buttonEl = useTemplateRef<HTMLButtonElement>('buttonEl');
+
+defineExpose({
+  button: buttonEl
+});
 </script>
 
 <template>
@@ -23,6 +29,7 @@ const props = withDefaults(defineProps<Props>(), {
     :as="as"
     :as-child="asChild"
     :class="cn(buttonVariants({ variant, size }), props.class)"
+    ref="buttonEl"
   >
     <slot />
   </Primitive>

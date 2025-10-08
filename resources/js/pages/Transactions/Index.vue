@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Combobox } from '@/components/shared/combobox';
 import {
     FilterCalendar,
     FilterCard,
@@ -30,8 +31,8 @@ import TransactionRoute from '@/routes/transactions';
 import { BreadcrumbItem } from '@/types';
 import { Filter } from '@/types/shared';
 import { TransactionCategory } from '@/types/transaction-categories';
-import { Transaction } from '@/types/transactions';
-import { Form, Head, router } from '@inertiajs/vue3';
+import { TransactionWithCategories } from '@/types/transactions';
+import { Head, router, useForm } from '@inertiajs/vue3';
 import { ColumnDef, VisibilityState } from '@tanstack/vue-table';
 import { pickBy } from 'lodash-es';
 import { Loader } from 'lucide-vue-next';
@@ -42,13 +43,13 @@ defineOptions({
 });
 
 const props = defineProps<{
-    transactions: PaginateData<Transaction[]>;
+    transactions: PaginateData<TransactionWithCategories[]>;
     report: {
         total_amount: number;
     };
     options: {
         select: {
-            categories: SelectOption<TransactionCategory>[];
+            categories: SelectOption<TransactionCategory['id']>[];
         };
     };
 }>();
@@ -67,7 +68,7 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
     },
 ]);
 
-const columns = computed<ColumnDef<Transaction>[]>(() => [
+const columns = computed<ColumnDef<TransactionWithCategories>[]>(() => [
     {
         accessorKey: 'id',
         header: 'ID',
@@ -77,6 +78,19 @@ const columns = computed<ColumnDef<Transaction>[]>(() => [
         accessorKey: 'name',
         header: () => h('div', null, 'Name'),
         cell: ({ row }) => h('div', null, row.getValue('name')),
+    },
+    {
+        accessorKey: 'categories',
+        header: () => h('div', null, 'Categories'),
+        cell: ({ row }) => {
+            const { categories } = row.original;
+
+            return h(
+                'div',
+                null,
+                categories.map((category) => category.name).join(', '),
+            );
+        },
     },
     {
         accessorKey: 'amount',
@@ -151,14 +165,32 @@ const search = () =>
         },
     );
 
-const reset = () =>
-    router.visit(TransactionRoute.index(), {
+const reset = () => router.visit(TransactionRoute.index());
+
+const form = useForm<{
+    name: string;
+    categories: TransactionCategory['id'][];
+    amount?: number;
+    remark: string;
+    expense: boolean;
+}>({
+    name: '',
+    categories: [],
+    amount: undefined,
+    remark: '',
+    expense: true,
+});
+
+const submit = () =>
+    form.post(TransactionRoute.store.url(), {
         preserveScroll: true,
         preserveState: true,
+        onSuccess: handleSuccess,
     });
 
 const handleSuccess = () => {
     state.open = false;
+    form.reset();
 };
 
 watch(
@@ -213,9 +245,8 @@ watch(
                             <DialogTitle>Create Transaction</DialogTitle>
                             <DialogDescription> </DialogDescription>
                         </DialogHeader>
-                        <Form
-                            v-bind="TransactionRoute.store.form()"
-                            #default="{ errors, processing }"
+                        <form
+                            @submit.prevent="submit"
                             class="space-y-3"
                             disable-while-processing
                             reset-on-success
@@ -228,44 +259,70 @@ watch(
                             <div class="grid w-full items-center gap-1.5">
                                 <Label for="name">Name</Label>
                                 <Input
+                                    v-model:model-value="form.name"
                                     name="name"
                                     type="text"
                                     placeholder="Enter Name"
                                 />
-                                <p v-if="errors.name" class="text-destructive">
-                                    {{ errors.name }}
+                                <p
+                                    v-if="form.errors.name"
+                                    class="text-destructive"
+                                >
+                                    {{ form.errors.name }}
+                                </p>
+                            </div>
+                            <div class="grid w-full items-center gap-1.5">
+                                <Label for="categories">Categories</Label>
+                                <Combobox
+                                    v-model:model-value="form.categories"
+                                    name="categories"
+                                    :options="options.select.categories"
+                                    placeholder="Select Categories"
+                                    command-placeholder="Select Categories"
+                                    multiple
+                                />
+                                <p
+                                    v-if="form.errors.categories"
+                                    class="text-destructive"
+                                >
+                                    {{ form.errors.categories }}
                                 </p>
                             </div>
                             <div class="grid w-full items-center gap-1.5">
                                 <Label for="amount">Amount</Label>
                                 <Input
+                                    v-model:model-value.number="form.amount"
                                     name="amount"
                                     type="number"
                                     step=".01"
                                     placeholder="Enter Amount"
                                 />
                                 <p
-                                    v-if="errors.amount"
+                                    v-if="form.errors.amount"
                                     class="text-destructive"
                                 >
-                                    {{ errors.amount }}
+                                    {{ form.errors.amount }}
                                 </p>
                             </div>
                             <div class="grid w-full items-center gap-1.5">
                                 <Label for="remark">Remark</Label>
                                 <Textarea
+                                    v-model:model-value="form.remark"
                                     name="remark"
                                     placeholder="Enter Remark"
                                 />
                                 <p
-                                    v-if="errors.remark"
+                                    v-if="form.errors.remark"
                                     class="text-destructive"
                                 >
-                                    {{ errors.remark }}
+                                    {{ form.errors.remark }}
                                 </p>
                             </div>
                             <div class="flex items-center space-x-2">
-                                <Switch name="expense" :default-value="true" />
+                                <Switch
+                                    name="expense"
+                                    v-model:model-value="form.expense"
+                                />
                                 <Label for="expense">Expense</Label>
                             </div>
                             <div
@@ -282,16 +339,16 @@ watch(
                                 <Button
                                     type="submit"
                                     class="cursor-pointer"
-                                    :disabled="processing"
+                                    :disabled="form.processing"
                                 >
                                     <Loader
-                                        v-if="processing"
+                                        v-if="form.processing"
                                         class="animate-spin"
                                     />
                                     Create
                                 </Button>
                             </div>
-                        </Form>
+                        </form>
                     </DialogContent>
                 </Dialog>
             </div>

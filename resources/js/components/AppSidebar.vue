@@ -12,7 +12,8 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
-import transactions from '@/routes/transactions';
+import TransactionCategoriesRoute from '@/routes/transaction-categories';
+import TransactionsRoute from '@/routes/transactions';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
 import { BookOpen, Folder, LayoutGrid } from 'lucide-vue-next';
@@ -26,7 +27,12 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Transactions',
-        href: transactions.index.url(),
+        href: TransactionsRoute.index.url(),
+        icon: LayoutGrid,
+    },
+    {
+        title: 'Transaction Categories',
+        href: TransactionCategoriesRoute.index.url(),
         icon: LayoutGrid,
     },
 ];

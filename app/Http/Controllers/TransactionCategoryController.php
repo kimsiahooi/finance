@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\TransactionCategory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class TransactionCategoryController extends Controller
@@ -10,9 +11,24 @@ class TransactionCategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $entries = $request->query('entries', 10);
+
+        $categories = $request->user()
+            ->transactionCategories()
+            ->when(
+                $request->search,
+                fn(Builder $query, string $search) =>
+                $query->whereAny(['id', 'name', 'description'], 'like', "%{$search}%")
+            )
+            ->latest()
+            ->paginate($entries)
+            ->withQueryString();
+
+        return inertia('TransactionCategories/Index', [
+            'categories' => $categories,
+        ]);
     }
 
     /**
@@ -28,7 +44,14 @@ class TransactionCategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'description' => ['sometimes', 'nullable', 'string'],
+        ]);
+
+        $request->user()->transactionCategories()->create($validated);
+
+        return back()->with('success', 'Category created successfully.');
     }
 
     /**

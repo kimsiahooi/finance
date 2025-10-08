@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Transaction;
 use App\Models\TransactionCategory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class TransactionController extends Controller
 {
@@ -76,18 +78,40 @@ class TransactionController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'categories' => ['nullable', 'array'],
+            'categories.*' => [
+                'required',
+                'distinct',
+                Rule::exists('transaction_categories', 'id')
+                    ->withoutTrashed()
+                    ->where(
+                        fn(QueryBuilder $query) =>
+                        $query->where('user_id', $request->user()->id)
+                    )
+            ],
             'amount' => ['required', 'numeric', 'min:0'],
-            'expense' => ['sometimes', 'in:on'],
+            'expense' => ['required', 'boolean'],
             'remark' => ['nullable', 'string'],
         ]);
 
-        if (isset($validated['expense'])) {
+        if ($validated['expense']) {
             $validated['amount'] = $validated['amount'] * -1;
         }
 
         $validated['transactioned_at'] = now();
 
-        $request->user()->transactions()->create($validated);
+        $transaction = $request->user()->transactions()->create($validated);
+
+        if ($validated['categories']) {
+            $categories = collect($validated['categories'])
+                ->mapWithKeys(fn(int $category) => [
+                    $category => [
+                        'user_id' => $request->user()->id,
+                    ]
+                ]);
+
+            $transaction->categories()->sync($categories);
+        }
 
         return back()->with('success', 'Transaction created successfully.');
     }
