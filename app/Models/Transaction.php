@@ -13,7 +13,7 @@ class Transaction extends Model
     /** @use HasFactory<\Database\Factories\TransactionFactory> */
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['user_id', 'name', 'amount', 'remark', 'transactioned_at'];
+    protected $fillable = ['name', 'amount', 'remark', 'transactioned_at'];
 
     protected function casts(): array
     {

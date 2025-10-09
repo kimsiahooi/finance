@@ -13,7 +13,7 @@ class TransactionCategory extends Model
     /** @use HasFactory<\Database\Factories\TransactionCategoryFactory> */
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['user_id', 'name', 'description'];
+    protected $fillable = ['name', 'description'];
 
     public function user(): BelongsTo
     {

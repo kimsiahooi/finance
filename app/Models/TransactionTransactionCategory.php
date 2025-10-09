@@ -11,6 +11,4 @@ class TransactionTransactionCategory extends Pivot
     use SoftDeletes, HasFactory;
 
     protected $table = 'transaction_category';
-
-    protected $fillable = ['user_id', 'transaction_id', 'category_id'];
 }
