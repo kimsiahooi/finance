@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { Combobox } from '@/components/shared/combobox';
+import { ActionButton } from '@/components/shared/custom/action';
 import {
     FilterCard,
     FilterInput,
     FilterRangeCalendar,
 } from '@/components/shared/custom/filter';
+import { DeleteDialog } from '@/components/shared/dialog';
 import { PaginateData } from '@/components/shared/pagination';
 import { SelectOption } from '@/components/shared/select';
 import { DataTable } from '@/components/shared/table';
@@ -28,7 +30,7 @@ import { useRouteParams } from '@/composables/useRouteParams';
 import AppLayout from '@/layouts/AppLayout.vue';
 import AppMainLayout from '@/layouts/AppMainLayout.vue';
 import { dashboard } from '@/routes';
-import TransactionRoute from '@/routes/transactions';
+import { destroy, edit, index, store } from '@/routes/transactions';
 import { BreadcrumbItem } from '@/types';
 import { Filter } from '@/types/shared';
 import { TransactionCategory } from '@/types/transaction-categories';
@@ -36,15 +38,17 @@ import { TransactionWithCategories } from '@/types/transactions';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { ColumnDef, VisibilityState } from '@tanstack/vue-table';
 import { pickBy } from 'lodash-es';
-import { Loader } from 'lucide-vue-next';
+import { Loader, Pencil, Trash2 } from 'lucide-vue-next';
 import { computed, h, reactive, ref, watch } from 'vue';
+
+type DataType = TransactionWithCategories;
 
 defineOptions({
     layout: AppMainLayout,
 });
 
 const props = defineProps<{
-    transactions: PaginateData<TransactionWithCategories[]>;
+    transactions: PaginateData<DataType[]>;
     report: {
         total_amount: number;
     };
@@ -62,15 +66,44 @@ const { formatDecimal } = useDecimal();
 const breadcrumbs = computed<BreadcrumbItem[]>(() => [
     {
         title: 'Dashboard',
-        href: dashboard.url(),
+        href: dashboard().url,
     },
     {
         title: 'Transactions',
-        href: TransactionRoute.index.url(),
+        href: index().url,
     },
 ]);
 
-const columns = computed<ColumnDef<TransactionWithCategories>[]>(() => [
+const columns = computed<ColumnDef<DataType>[]>(() => [
+    {
+        accessorKey: 'actions',
+        header: () => 'Actions',
+        cell: ({ row }) => {
+            const transaction = row.original;
+
+            return h('div', { class: 'flex items-center gap-2' }, [
+                h(ActionButton, {
+                    text: 'Edit',
+                    href: edit({ transaction: transaction.id }).url,
+                    icon: Pencil,
+                }),
+                h(
+                    DeleteDialog,
+                    {
+                        title: `Delete ${transaction.name}`,
+                        route: destroy({ transaction: transaction.id }).url,
+                        asChild: false,
+                    },
+                    () =>
+                        h(ActionButton, {
+                            variant: 'destructive',
+                            text: 'Delete',
+                            icon: Trash2,
+                        }),
+                ),
+            ]);
+        },
+    },
     {
         accessorKey: 'id',
         header: 'ID',
@@ -96,20 +129,25 @@ const columns = computed<ColumnDef<TransactionWithCategories>[]>(() => [
     },
     {
         accessorKey: 'amount',
-        header: 'Amount',
+        header: () => h('div', { class: 'text-right' }, 'Amount'),
         cell: ({ row }) => {
             const { amount } = row.original;
 
             return h(
                 'div',
-                { class: +amount < 0 && 'text-destructive' },
+                { class: ['text-right', +amount < 0 && 'text-destructive'] },
                 formatDecimal(amount),
             );
         },
         footer: () =>
             h(
                 'div',
-                { class: props.report.total_amount < 0 && 'text-destructive' },
+                {
+                    class: [
+                        'text-right',
+                        props.report.total_amount < 0 && 'text-destructive',
+                    ],
+                },
                 formatDecimal(props.report.total_amount),
             ),
     },
@@ -159,7 +197,7 @@ const state = reactive<{
 
 const search = () =>
     router.visit(
-        TransactionRoute.index({
+        index({
             query: pickBy(filter.value),
         }),
         {
@@ -168,7 +206,7 @@ const search = () =>
         },
     );
 
-const reset = () => router.visit(TransactionRoute.index());
+const reset = () => router.visit(index());
 
 const form = useForm<{
     name: string;
@@ -185,7 +223,7 @@ const form = useForm<{
 });
 
 const submit = () =>
-    form.post(TransactionRoute.store.url(), {
+    form.post(store().url, {
         preserveScroll: true,
         preserveState: true,
         onSuccess: handleSuccess,
@@ -283,7 +321,7 @@ watch(
                             <div class="grid w-full items-center gap-1.5">
                                 <Label for="amount">Amount</Label>
                                 <Input
-                                    v-model:model-value.number="form.amount"
+                                    v-model:model-value="form.amount"
                                     name="amount"
                                     type="number"
                                     step=".01"

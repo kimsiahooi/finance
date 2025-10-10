@@ -20,7 +20,7 @@ class TransactionCategory extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function categories(): BelongsToMany
+    public function transactions(): BelongsToMany
     {
         return $this->belongsToMany(Transaction::class, 'transaction_category', 'category_id')
             ->withTimestamps()

@@ -17,6 +17,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useDecimal } from '@/composables/useDecimal';
 import { useRouteParams } from '@/composables/useRouteParams';
 import AppLayout from '@/layouts/AppLayout.vue';
 import AppMainLayout from '@/layouts/AppMainLayout.vue';
@@ -24,22 +25,28 @@ import { dashboard } from '@/routes';
 import { destroy, edit, index, store } from '@/routes/transaction-categories';
 import { BreadcrumbItem } from '@/types';
 import { Filter } from '@/types/shared';
-import { TransactionCategory } from '@/types/transaction-categories';
 import { Form, Head, router } from '@inertiajs/vue3';
 import { ColumnDef, VisibilityState } from '@tanstack/vue-table';
 import { pickBy } from 'lodash-es';
 import { Loader, Pencil, Trash2 } from 'lucide-vue-next';
 import { computed, h, reactive, ref } from 'vue';
+import { TransactionCategoryWithSum } from '.';
+
+type DataType = TransactionCategoryWithSum;
 
 defineOptions({
     layout: AppMainLayout,
 });
 
-defineProps<{
-    categories: PaginateData<TransactionCategory[]>;
+const props = defineProps<{
+    categories: PaginateData<DataType[]>;
+    report: {
+        total_amount: number;
+    };
 }>();
 
 const { params } = useRouteParams();
+const { formatDecimal } = useDecimal();
 
 const breadcrumbs = computed<BreadcrumbItem[]>(() => [
     {
@@ -52,10 +59,10 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
     },
 ]);
 
-const columns = computed<ColumnDef<TransactionCategory>[]>(() => [
+const columns = computed<ColumnDef<DataType>[]>(() => [
     {
         accessorKey: 'actions',
-        header: () => h('div', null, 'Actions'),
+        header: () => 'Actions',
         cell: ({ row }) => {
             const category = row.original;
 
@@ -89,13 +96,43 @@ const columns = computed<ColumnDef<TransactionCategory>[]>(() => [
     },
     {
         accessorKey: 'name',
-        header: () => h('div', null, 'Name'),
+        header: () => 'Name',
         cell: ({ row }) => h('div', null, row.getValue('name')),
     },
     {
         accessorKey: 'description',
-        header: () => h('div', null, 'Description'),
+        header: () => 'Description',
         cell: ({ row }) => h('div', null, row.getValue('description')),
+    },
+    {
+        accessorKey: 'transactions_sum_amount',
+        header: () => h('div', { class: 'text-right' }, 'Total Amount'),
+        cell: ({ row }) => {
+            const { transactions_sum_amount } = row.original;
+            return h(
+                'div',
+                {
+                    class: [
+                        'text-right',
+                        transactions_sum_amount &&
+                            +transactions_sum_amount < 0 &&
+                            'text-destructive',
+                    ],
+                },
+                formatDecimal(row.getValue('transactions_sum_amount')),
+            );
+        },
+        footer: () =>
+            h(
+                'div',
+                {
+                    class: [
+                        'text-right',
+                        props.report.total_amount < 0 && 'text-destructive',
+                    ],
+                },
+                formatDecimal(props.report.total_amount),
+            ),
     },
 ]);
 

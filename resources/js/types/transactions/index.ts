@@ -4,6 +4,7 @@ import type { User } from '@/types/users';
 export interface Transaction {
     readonly id: number;
     user_id: User['id'];
+    name: string;
     amount: string;
     remark: string | null;
     transactioned_at: Date;

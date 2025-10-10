@@ -9,7 +9,7 @@ import {
 import AppLayout from '@/layouts/AppLayout.vue';
 import AppMainLayout from '@/layouts/AppMainLayout.vue';
 import { dashboard } from '@/routes';
-import { index, update } from '@/routes/transaction-categories';
+import { edit, index, update } from '@/routes/transaction-categories';
 import type { BreadcrumbItem } from '@/types';
 import { TransactionCategory } from '@/types/transaction-categories';
 import { Head, useForm } from '@inertiajs/vue3';
@@ -35,6 +35,10 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
     {
         title: props.category.name,
         href: '#',
+    },
+    {
+        title: 'Edit',
+        href: edit({ category: props.category.id }).url,
     },
 ]);
 

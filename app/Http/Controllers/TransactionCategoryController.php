@@ -18,6 +18,7 @@ class TransactionCategoryController extends Controller
 
         $categories = $request->user()
             ->transactionCategories()
+            ->withSum('transactions', 'amount')
             ->when(
                 $request->search,
                 fn(Builder $query, string $search) =>
@@ -29,6 +30,9 @@ class TransactionCategoryController extends Controller
 
         return inertia('TransactionCategories/Index', [
             'categories' => $categories,
+            'report' => [
+                'total_amount' => $categories->sum('transactions_sum_amount'),
+            ],
         ]);
     }
 
@@ -50,7 +54,9 @@ class TransactionCategoryController extends Controller
             'description' => ['sometimes', 'nullable', 'string'],
         ]);
 
-        $request->user()->transactionCategories()->create($validated);
+        $request->user()
+            ->transactionCategories()
+            ->create($validated);
 
         return back()->with('success', 'Category created successfully.');
     }
