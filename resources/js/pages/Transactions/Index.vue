@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { Combobox } from '@/components/shared/combobox';
 import {
-    FilterCalendar,
     FilterCard,
     FilterInput,
+    FilterRangeCalendar,
 } from '@/components/shared/custom/filter';
 import { PaginateData } from '@/components/shared/pagination';
 import { SelectOption } from '@/components/shared/select';
@@ -142,16 +142,20 @@ const filter = ref<Filter>({
 
 const state = reactive<{
     open: boolean;
-    start_date?: Date;
-    end_date?: Date;
+    date: {
+        start?: Date;
+        end?: Date;
+    };
 }>({
     open: false,
-    start_date: filter.value.start_date
-        ? new Date(filter.value.start_date)
-        : undefined,
-    end_date: filter.value.end_date
-        ? new Date(filter.value.end_date)
-        : undefined,
+    date: {
+        start: filter.value.start_date
+            ? new Date(filter.value.start_date)
+            : undefined,
+        end: filter.value.end_date
+            ? new Date(filter.value.end_date)
+            : undefined,
+    },
 });
 
 const search = () =>
@@ -194,17 +198,12 @@ const handleSuccess = () => {
 };
 
 watch(
-    () => state.start_date,
-    (newStartDate) => {
-        filter.value.start_date = newStartDate?.toISOString();
+    () => state.date,
+    (newDate) => {
+        filter.value.start_date = newDate.start?.toISOString();
+        filter.value.end_date = newDate.end?.toISOString();
     },
-);
-
-watch(
-    () => state.end_date,
-    (newEndDate) => {
-        filter.value.end_date = newEndDate?.toISOString();
-    },
+    { deep: true },
 );
 </script>
 
@@ -221,15 +220,9 @@ watch(
                     placeholder="Search ID, Name, Remark"
                     v-model:model-value="filter.search"
                 />
-                <FilterCalendar
-                    label="Transaction Start Date"
-                    placeholder="Select Transaction Start Date"
-                    v-model:model-value="state.start_date"
-                />
-                <FilterCalendar
-                    label="Transaction End Date"
-                    placeholder="Select Transaction End Date"
-                    v-model:model-value="state.end_date"
+                <FilterRangeCalendar
+                    label="Transaction Date"
+                    v-model:model-value="state.date"
                 />
             </FilterCard>
             <div class="flex flex-wrap items-center justify-end gap-2">
