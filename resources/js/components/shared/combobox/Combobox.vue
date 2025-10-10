@@ -88,7 +88,7 @@ onUnmounted(() => {
         <PopoverTrigger as-child>
             <Button
                 variant="outline"
-                class="flex-1 justify-between font-normal"
+                class="w-full flex-1 justify-between font-normal"
                 ref="buttonEl"
                 :class="[
                     model ? 'text-foreground' : 'text-muted-foreground',
