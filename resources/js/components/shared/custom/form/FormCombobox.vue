@@ -9,7 +9,7 @@ import { computed } from 'vue';
 
 const props = defineProps<{
     label: string;
-    placeholder?: string;
+    placeholder: string;
     error?: string;
     errorKey?: string;
     options: SelectOption<T>[];
@@ -18,15 +18,9 @@ const props = defineProps<{
 const { findErrors } = useError();
 const model = defineModel<T | T[]>();
 
-const placeholderValue = computed(() =>
-    Array.isArray(model.value) ? `${model.value?.length} selected` : props.options.find((option) => option.value === model.value)?.name,
+const existingErrors = computed(
+    () => props.errorKey && findErrors(props.errorKey),
 );
-
-const commandPlaceholder = computed(() => props.placeholder ?? `Select ${props.label}`);
-
-const computedPlaceholder = computed(() => placeholderValue.value || commandPlaceholder.value);
-
-const existingErrors = computed(() => props.errorKey && findErrors(props.errorKey));
 </script>
 
 <template>
@@ -42,12 +36,12 @@ const existingErrors = computed(() => props.errorKey && findErrors(props.errorKe
             <Combobox
                 v-bind="$attrs"
                 :options="options"
-                :placeholder="computedPlaceholder"
-                :command-placeholder="commandPlaceholder"
+                :placeholder="placeholder"
                 v-model:model-value="model"
                 :class="{
                     '!border-destructive': error || existingErrors,
-                    '!text-muted-foreground': (Array.isArray(model) && !model.length) || !model,
+                    '!text-muted-foreground':
+                        (Array.isArray(model) && !model.length) || !model,
                 }"
             />
             <slot />

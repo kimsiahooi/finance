@@ -39,6 +39,12 @@ class TransactionController extends Controller
                 $query->whereAny(['id', 'name', 'remark'], 'like', "%{$search}%")
             )
             ->when(
+                $request->categories,
+                fn(Builder $query, array $categories) =>
+                $query->whereHas('categories', fn($q) =>
+                $q->whereIn('transaction_category.category_id', $categories))
+            )
+            ->when(
                 $request->start_date,
                 fn(Builder $query, string $startDate) =>
                 $query->where('transactioned_at', '>=', $startDate)

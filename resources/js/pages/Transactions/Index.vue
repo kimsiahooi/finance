@@ -3,6 +3,7 @@ import { Combobox } from '@/components/shared/combobox';
 import { ActionButton } from '@/components/shared/custom/action';
 import {
     FilterCard,
+    FilterCombobox,
     FilterInput,
     FilterRangeCalendar,
 } from '@/components/shared/custom/filter';
@@ -170,11 +171,19 @@ const columns = computed<ColumnDef<DataType>[]>(() => [
 
 const columnVisibility = computed<VisibilityState>(() => ({}));
 
+const catOptions = computed<SelectOption<string>[]>(() =>
+    props.options.select.categories.map((cat) => ({
+        name: cat.name,
+        value: cat.value.toString(),
+    })),
+);
+
 const filter = ref<Filter>({
-    entries: params.get('entries') ?? '10',
-    search: params.get('search') ?? undefined,
-    start_date: params.get('start_date') ?? undefined,
-    end_date: params.get('end_date') ?? undefined,
+    entries: params.entries ?? '10',
+    search: params.search,
+    categories: params.categories,
+    start_date: params.start_date,
+    end_date: params.end_date,
 });
 
 const state = reactive<{
@@ -256,6 +265,13 @@ watch(
                     label="Name"
                     placeholder="Search ID, Name, Remark"
                     v-model:model-value="filter.search"
+                />
+                <FilterCombobox
+                    label="Categories"
+                    placeholder="Search Categories"
+                    :options="catOptions"
+                    v-model:model-value="filter.categories"
+                    multiple
                 />
                 <FilterRangeCalendar
                     label="Transaction Date"

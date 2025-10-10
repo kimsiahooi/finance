@@ -139,8 +139,8 @@ const columns = computed<ColumnDef<DataType>[]>(() => [
 const columnVisibility = computed<VisibilityState>(() => ({}));
 
 const filter = ref<Filter>({
-    entries: params.get('entries') ?? '10',
-    search: params.get('search') ?? undefined,
+    entries: params.entries ?? '10',
+    search: params.search,
 });
 
 const state = reactive({

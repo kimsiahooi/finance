@@ -90,6 +90,7 @@ const submit = () =>
                     <FormCombobox
                         label="Categories"
                         :options="options.select.categories"
+                        placeholder="Select Categories"
                         error-key="categories"
                         v-model:model-value="form.categories"
                         multiple
