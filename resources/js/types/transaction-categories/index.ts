@@ -1,3 +1,4 @@
+import type { Transaction } from '@/types/transactions';
 import type { User } from '@/types/users';
 
 export interface TransactionCategory {
@@ -8,4 +9,9 @@ export interface TransactionCategory {
     created_at: Date | null;
     updated_at: Date | null;
     deleted_at: Date | null;
+}
+
+export interface TransactionCategoryWithTransactions
+    extends TransactionCategory {
+    transactions: Transaction[];
 }

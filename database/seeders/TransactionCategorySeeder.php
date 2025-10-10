@@ -13,6 +13,6 @@ class TransactionCategorySeeder extends Seeder
      */
     public function run(): void
     {
-        TransactionCategory::factory(100)->create();
+        TransactionCategory::factory(10)->create();
     }
 }
