@@ -23,7 +23,7 @@ class TransactionFactory extends Factory
         return [
             'user_id' => $user->id,
             'name' => fake()->sentence(2),
-            'amount' => fake()->numberBetween(-99, 99),
+            'amount' => fake()->numberBetween(-99999, 99999),
             'remark' => fake()->optional()->sentence(),
             'transactioned_at' => fake()->dateTimeBetween('-2 year'),
         ];

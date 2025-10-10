@@ -22,6 +22,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { useDecimal } from '@/composables/useDecimal';
 import { useFormatDateTime } from '@/composables/useFormatDateTime';
 import { useRouteParams } from '@/composables/useRouteParams';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -56,6 +57,7 @@ const props = defineProps<{
 
 const { params } = useRouteParams();
 const { formatDateTime } = useFormatDateTime();
+const { formatDecimal } = useDecimal();
 
 const breadcrumbs = computed<BreadcrumbItem[]>(() => [
     {
@@ -101,17 +103,14 @@ const columns = computed<ColumnDef<TransactionWithCategories>[]>(() => [
             return h(
                 'div',
                 { class: +amount < 0 && 'text-destructive' },
-                amount,
+                formatDecimal(amount),
             );
         },
         footer: () =>
             h(
                 'div',
                 { class: props.report.total_amount < 0 && 'text-destructive' },
-                props.report.total_amount.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                }),
+                formatDecimal(props.report.total_amount),
             ),
     },
     {

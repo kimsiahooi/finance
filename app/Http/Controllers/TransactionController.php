@@ -89,7 +89,7 @@ class TransactionController extends Controller
                         $query->where('user_id', $request->user()->id)
                     )
             ],
-            'amount' => ['required', 'numeric', 'min:0'],
+            'amount' => ['required', 'numeric', 'min:0', 'max:999999.99'],
             'expense' => ['required', 'boolean'],
             'remark' => ['nullable', 'string'],
         ]);
