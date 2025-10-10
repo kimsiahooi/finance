@@ -28,18 +28,10 @@ const calendarDate = ref({
 
 const formateDateRange = (
     dateRange: DateRange,
-): { start?: Date; end?: Date } => {
-    const startDate = dateRange.start && new Date(dateRange.start?.toString());
-    startDate?.setHours(0);
-
-    const endDate = dateRange.end && new Date(dateRange.end?.toString());
-    endDate?.setHours(0);
-
-    return {
-        start: startDate,
-        end: endDate,
-    };
-};
+): { start?: Date; end?: Date } => ({
+    start: dateRange.start?.toDate(getLocalTimeZone()),
+    end: dateRange.end?.toDate(getLocalTimeZone()),
+});
 
 watch(
     calendarDate,
