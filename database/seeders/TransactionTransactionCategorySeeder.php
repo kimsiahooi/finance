@@ -18,10 +18,10 @@ class TransactionTransactionCategorySeeder extends Seeder
         $users = User::all();
 
         foreach ($users as $user) {
-            $transactions = Transaction::where('user_id', $user->id)->get();
+            $transactions = Transaction::whereBelongsTo($user)->get();
 
             foreach ($transactions as $transaction) {
-                $categories = TransactionCategory::where('user_id', $user->id)
+                $categories = TransactionCategory::whereBelongsTo($user)
                     ->inRandomOrder()
                     ->limit(rand(1, 2))
                     ->get()

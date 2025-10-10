@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\TransactionCategory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class TransactionCategoryController extends Controller
 {
@@ -57,7 +58,7 @@ class TransactionCategoryController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(TransactionCategory $transactionCategory)
+    public function show(TransactionCategory $category)
     {
         //
     }
@@ -65,24 +66,42 @@ class TransactionCategoryController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(TransactionCategory $transactionCategory)
+    public function edit(TransactionCategory $category)
     {
-        //
+        Gate::authorize('update', $category);
+
+        return inertia('TransactionCategories/Edit', [
+            'category' => $category,
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, TransactionCategory $transactionCategory)
+    public function update(Request $request, TransactionCategory $category)
     {
-        //
+        Gate::authorize('update', $category);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'description' => ['sometimes', 'nullable', 'string'],
+        ]);
+
+        $category->update($validated);
+
+        return to_route('transaction-categories.index')
+            ->with('success', 'Category updated successfully.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(TransactionCategory $transactionCategory)
+    public function destroy(TransactionCategory $category)
     {
-        //
+        Gate::authorize('delete', $category);
+
+        $category->delete();
+
+        return back()->with('success', 'Category deleted successfully.');
     }
 }

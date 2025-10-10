@@ -18,6 +18,11 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@gmail.com',
         ]);
 
+        User::factory()->create([
+            'name' => 'Super Admin',
+            'email' => 'superadmin@gmail.com',
+        ]);
+
         $this->call([
             TransactionCategorySeeder::class,
             TransactionSeeder::class,

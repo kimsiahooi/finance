@@ -20,8 +20,8 @@ class TransactionTransactionCategoryFactory extends Factory
     public function definition(): array
     {
         $user = User::inRandomOrder()->first();
-        $transaction = Transaction::where('user_id', $user->id)->inRandomOrder()->first();
-        $category = TransactionCategory::where('user_id', $user->id)->inRandomOrder()->first();
+        $transaction = Transaction::whereBelongsTo($user)->inRandomOrder()->first();
+        $category = TransactionCategory::whereBelongsTo($user)->inRandomOrder()->first();
 
         return [
             'user_id' => $user->id,

@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { ActionButton } from '@/components/shared/custom/action';
 import { FilterCard, FilterInput } from '@/components/shared/custom/filter';
+import { DeleteDialog } from '@/components/shared/dialog';
 import { PaginateData } from '@/components/shared/pagination';
 import { DataTable } from '@/components/shared/table';
 import { Button } from '@/components/ui/button';
@@ -19,14 +21,14 @@ import { useRouteParams } from '@/composables/useRouteParams';
 import AppLayout from '@/layouts/AppLayout.vue';
 import AppMainLayout from '@/layouts/AppMainLayout.vue';
 import { dashboard } from '@/routes';
-import TransactionCategoriesRoute from '@/routes/transaction-categories';
+import { destroy, edit, index, store } from '@/routes/transaction-categories';
 import { BreadcrumbItem } from '@/types';
 import { Filter } from '@/types/shared';
 import { TransactionCategory } from '@/types/transaction-categories';
 import { Form, Head, router } from '@inertiajs/vue3';
 import { ColumnDef, VisibilityState } from '@tanstack/vue-table';
 import { pickBy } from 'lodash-es';
-import { Loader } from 'lucide-vue-next';
+import { Loader, Pencil, Trash2 } from 'lucide-vue-next';
 import { computed, h, reactive, ref } from 'vue';
 
 defineOptions({
@@ -42,15 +44,44 @@ const { params } = useRouteParams();
 const breadcrumbs = computed<BreadcrumbItem[]>(() => [
     {
         title: 'Dashboard',
-        href: dashboard.url(),
+        href: dashboard().url,
     },
     {
         title: 'Transaction Categories',
-        href: TransactionCategoriesRoute.index.url(),
+        href: index().url,
     },
 ]);
 
 const columns = computed<ColumnDef<TransactionCategory>[]>(() => [
+    {
+        accessorKey: 'actions',
+        header: () => h('div', null, 'Actions'),
+        cell: ({ row }) => {
+            const category = row.original;
+
+            return h('div', { class: 'flex items-center gap-2' }, [
+                h(ActionButton, {
+                    text: 'Edit',
+                    href: edit({ category: category.id }).url,
+                    icon: Pencil,
+                }),
+                h(
+                    DeleteDialog,
+                    {
+                        title: `Delete ${category.name}`,
+                        route: destroy({ category: category.id }).url,
+                        asChild: false,
+                    },
+                    () =>
+                        h(ActionButton, {
+                            variant: 'destructive',
+                            text: 'Delete',
+                            icon: Trash2,
+                        }),
+                ),
+            ]);
+        },
+    },
     {
         accessorKey: 'id',
         header: 'ID',
@@ -81,7 +112,7 @@ const state = reactive({
 
 const search = () =>
     router.visit(
-        TransactionCategoriesRoute.index({
+        index({
             query: pickBy(filter.value),
         }),
         {
@@ -90,7 +121,7 @@ const search = () =>
         },
     );
 
-const reset = () => router.visit(TransactionCategoriesRoute.index());
+const reset = () => router.visit(index());
 
 const handleSuccess = () => {
     state.open = false;
@@ -127,7 +158,7 @@ const handleSuccess = () => {
                             <DialogDescription> </DialogDescription>
                         </DialogHeader>
                         <Form
-                            v-bind="TransactionCategoriesRoute.store.form()"
+                            v-bind="store.form()"
                             #default="{ errors, processing }"
                             class="space-y-3"
                             disable-while-processing
