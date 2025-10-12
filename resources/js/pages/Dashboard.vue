@@ -1,10 +1,14 @@
 <script setup lang="ts">
+import { Select, SelectOption } from '@/components/shared/select';
+import { useRouteParams } from '@/composables/useRouteParams';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/vue3';
+import { Filter } from '@/types/shared';
+import { Head, router } from '@inertiajs/vue3';
 import { ApexOptions } from 'apexcharts';
-import { computed, ref } from 'vue';
+import { pickBy } from 'lodash-es';
+import { computed, ref, watch } from 'vue';
 import VueApexCharts from 'vue3-apexcharts';
 
 interface Transaction {
@@ -16,16 +20,30 @@ interface Transaction {
 
 const props = defineProps<{
     transactions: Transaction[];
+    options: {
+        select: {
+            periods: SelectOption<string>[];
+        };
+    };
 }>();
 
-const breadcrumbs: BreadcrumbItem[] = [
+const { params } = useRouteParams();
+
+const breadcrumbs = computed<BreadcrumbItem[]>(() => [
     {
         title: 'Dashboard',
         href: dashboard().url,
     },
-];
+]);
 
 const series = computed<ApexOptions['series']>(() => [
+    {
+        name: 'Incomes',
+        data: props.transactions.map(
+            (transaction) => +transaction.total_incomes,
+        ),
+        color: '#4ade80',
+    },
     {
         name: 'Expenses',
         data: props.transactions.map(
@@ -33,17 +51,10 @@ const series = computed<ApexOptions['series']>(() => [
         ),
         color: '#f87171',
     },
-    {
-        name: 'Incomes',
-        data: props.transactions.map(
-            (transaction) => +transaction.total_incomes,
-        ),
-    },
 ]);
 
-const chartOptions = ref<ApexOptions>({
+const chartOptions = computed<ApexOptions>(() => ({
     chart: {
-        height: 350,
         type: 'area',
         zoom: {
             allowMouseWheelZoom: false,
@@ -94,7 +105,23 @@ const chartOptions = ref<ApexOptions>({
         //             : '',
         // },
     },
+}));
+
+const filter = ref<Filter>({
+    period:
+        params.period ??
+        props.options.select.periods.find((period) => period.is_default)?.value,
 });
+
+watch(
+    filter,
+    (newFilter) =>
+        router.visit(dashboard({ query: pickBy(newFilter) }).url, {
+            preserveScroll: true,
+            preserveState: true,
+        }),
+    { deep: true },
+);
 </script>
 
 <template>
@@ -104,8 +131,17 @@ const chartOptions = ref<ApexOptions>({
         <div
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
-            <div class="text-black">
-                <VueApexCharts :options="chartOptions" :series="series" />
+            <div class="space-y-4">
+                <div class="flex flex-wrap items-center justify-end gap-2">
+                    <Select
+                        :options="options.select.periods"
+                        placeholder="Select Period"
+                        v-model:model-value="filter.period"
+                    />
+                </div>
+                <div class="text-black">
+                    <VueApexCharts :options="chartOptions" :series="series" />
+                </div>
             </div>
         </div>
     </AppLayout>
