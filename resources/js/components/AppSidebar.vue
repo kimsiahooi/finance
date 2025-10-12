@@ -27,7 +27,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Transactions',
-        href: TransactionsRoute.index.url(),
+        href: TransactionsRoute.index().url,
         icon: LayoutGrid,
     },
     {

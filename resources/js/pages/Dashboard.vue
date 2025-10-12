@@ -1,13 +1,18 @@
 <script setup lang="ts">
 import { Select, SelectOption } from '@/components/shared/select';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { usePage } from '@/composables/usePage';
 import { useRouteParams } from '@/composables/useRouteParams';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
+import { edit } from '@/routes/timezone';
 import { type BreadcrumbItem } from '@/types';
 import { Filter } from '@/types/shared';
-import { Head, router } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { ApexOptions } from 'apexcharts';
 import { pickBy } from 'lodash-es';
+import { CircleAlert } from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
 import VueApexCharts from 'vue3-apexcharts';
 
@@ -28,6 +33,7 @@ const props = defineProps<{
 }>();
 
 const { params } = useRouteParams();
+const { page } = usePage();
 
 const breadcrumbs = computed<BreadcrumbItem[]>(() => [
     {
@@ -132,6 +138,34 @@ watch(
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
             <div class="space-y-4">
+                <Alert
+                    v-if="!page.props.auth.user.timezone"
+                    variant="destructive"
+                    class="border-destructive"
+                >
+                    <CircleAlert class="h-4 w-4" />
+                    <div class="flex items-center">
+                        <div class="flex-1">
+                            <AlertTitle>
+                                You haven't setup timezone yet !
+                            </AlertTitle>
+                            <AlertDescription>
+                                This will affect your dashboard result. Quickly
+                                setup by go to timezone page.
+                            </AlertDescription>
+                        </div>
+                        <div>
+                            <Link :href="edit()" as-child>
+                                <Button
+                                    class="cursor-pointer"
+                                    variant="destructive"
+                                >
+                                    Go to timezone page
+                                </Button>
+                            </Link>
+                        </div>
+                    </div>
+                </Alert>
                 <div class="flex flex-wrap items-center justify-end gap-2">
                     <Select
                         :options="options.select.periods"

@@ -5,6 +5,18 @@ import laravel from 'laravel-vite-plugin';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+    build: {
+        // rollupOptions: {
+        //     output: {
+        //         manualChunks: (id) => {
+        //             if (id.includes('vue')) return 'vue';
+        //             if (id.includes('apexcharts')) return 'charts';
+        //             if (id.includes('node_modules')) return 'vendor';
+        //         },
+        //     },
+        // },
+        chunkSizeWarningLimit: 1000,
+    },
     plugins: [
         laravel({
             input: ['resources/js/app.ts'],

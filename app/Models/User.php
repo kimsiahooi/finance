@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -24,6 +25,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'timezone_id',
     ];
 
     /**
@@ -35,6 +37,8 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    protected $with = ['timezone'];
 
     /**
      * Get the attributes that should be cast.
@@ -57,5 +61,10 @@ class User extends Authenticatable
     public function transactionCategories(): HasMany
     {
         return $this->hasMany(TransactionCategory::class);
+    }
+
+    public function timezone(): BelongsTo
+    {
+        return $this->belongsTo(Timezone::class);
     }
 }
