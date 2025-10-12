@@ -40,6 +40,7 @@ import { Head, router, useForm } from '@inertiajs/vue3';
 import { ColumnDef, VisibilityState } from '@tanstack/vue-table';
 import { pickBy } from 'lodash-es';
 import { Loader, Pencil, Trash2 } from 'lucide-vue-next';
+import Timezones from 'timezones-list';
 import { computed, h, reactive, ref, watch } from 'vue';
 
 type DataType = TransactionWithCategories;
@@ -251,6 +252,8 @@ watch(
     },
     { deep: true },
 );
+
+console.log(Timezones);
 </script>
 
 <template>

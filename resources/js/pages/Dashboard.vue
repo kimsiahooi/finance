@@ -1,19 +1,22 @@
 <script setup lang="ts">
-import { useFormatDateTime } from '@/composables/useFormatDateTime';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
-import { TransactionCategoryWithTransactions } from '@/types/transaction-categories';
 import { Head } from '@inertiajs/vue3';
 import { ApexOptions } from 'apexcharts';
 import { computed, ref } from 'vue';
 import VueApexCharts from 'vue3-apexcharts';
 
-const props = defineProps<{
-    categories: TransactionCategoryWithTransactions[];
-}>();
+interface Transaction {
+    transactioned_date: string;
+    total_amount: string;
+    total_expenses: string;
+    total_incomes: string;
+}
 
-const { formatDateTime } = useFormatDateTime();
+const props = defineProps<{
+    transactions: Transaction[];
+}>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -22,20 +25,30 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const series = computed<ApexOptions['series']>(() =>
-    props.categories.map((cat) => ({
-        name: cat.name,
-        data: cat.transactions.map((transaction) => ({
-            x: new Date(transaction.transactioned_at).getTime(),
-            y: +transaction.amount,
-        })),
-    })),
-);
+const series = computed<ApexOptions['series']>(() => [
+    {
+        name: 'Expenses',
+        data: props.transactions.map(
+            (transaction) => +transaction.total_expenses,
+        ),
+        color: '#f87171',
+    },
+    {
+        name: 'Incomes',
+        data: props.transactions.map(
+            (transaction) => +transaction.total_incomes,
+        ),
+    },
+]);
 
 const chartOptions = ref<ApexOptions>({
     chart: {
         height: 350,
         type: 'area',
+        zoom: {
+            allowMouseWheelZoom: false,
+            enabled: false,
+        },
         toolbar: {
             show: true,
             tools: {
@@ -49,10 +62,10 @@ const chartOptions = ref<ApexOptions>({
             export: {
                 scale: undefined,
                 width: undefined,
-                csv: {
-                    categoryFormatter: (timestamp) =>
-                        timestamp && formatDateTime(new Date(timestamp)),
-                },
+                // csv: {
+                //     categoryFormatter: (timestamp) =>
+                //         timestamp && formatDateTime(new Date(timestamp)),
+                // },
             },
             autoSelected: 'zoom',
         },
@@ -64,14 +77,22 @@ const chartOptions = ref<ApexOptions>({
         curve: 'smooth',
     },
     xaxis: {
-        type: 'datetime',
+        categories: props.transactions.map(
+            (transaction) => transaction.transactioned_date,
+        ),
         labels: {
-            formatter: (_, timestamp) =>
-                timestamp
-                    ? (formatDateTime(new Date(timestamp), 'MM-DD hh:mma') ??
-                      '')
-                    : '',
+            style: {
+                cssClass: 'transactions-xaxis-label',
+            },
         },
+        // type: 'datetime',
+        // labels: {
+        //     formatter: (_, timestamp) =>
+        //         timestamp
+        //             ? (formatDateTime(new Date(timestamp), 'MM-DD hh:mma') ??
+        //               '')
+        //             : '',
+        // },
     },
 });
 </script>
@@ -83,7 +104,21 @@ const chartOptions = ref<ApexOptions>({
         <div
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
-            <VueApexCharts :options="chartOptions" :series="series" />
+            <div class="text-black">
+                <VueApexCharts :options="chartOptions" :series="series" />
+            </div>
         </div>
     </AppLayout>
 </template>
+
+<style>
+@reference "tailwindcss";
+
+.transactions-xaxis-label {
+    @apply fill-black/50;
+}
+
+.dark .transactions-xaxis-label {
+    @apply fill-white/50;
+}
+</style>
