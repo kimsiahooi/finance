@@ -19,6 +19,7 @@
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.16",
         "fakerphp/faker": "^1.23",
+        "laradumps/laradumps": "^4.0",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.18",
         "laravel/sail": "^1.41",
@@ -67,6 +68,10 @@
         "test": [
             "@php artisan config:clear --ansi",
             "@php artisan test"
+        ],
+        "ds:check": "@php vendor/bin/laradumps check --dir=app,routes,config --text=dump,dd",
+        "verify": [
+            "@ds:check"
         ]
     },
     "extra": {

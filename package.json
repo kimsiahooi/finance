@@ -2,14 +2,15 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vue-tsc --noEmit && vite build",
+        "build": "npm run verify && vue-tsc --noEmit && vite build",
         "build:ssr": "vite build && vite build --ssr",
         "dev": "vite",
         "format": "prettier --write resources/",
         "format:check": "prettier --check resources/",
         "lint": "eslint . --fix",
         "route": "concurrently \"php artisan wayfinder:generate --with-form\"",
-        "seed": "concurrently \"php artisan migrate:fresh --seed\""
+        "seed": "concurrently \"php artisan migrate:fresh --seed\"",
+        "verify": "concurrently \"composer verify\""
     },
     "devDependencies": {
         "@eslint/js": "^9.19.0",
