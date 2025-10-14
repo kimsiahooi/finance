@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Enums\Dashboard\Period;
+use App\Services\Dashboard\DashboardService;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
+    public function __construct(protected DashboardService $dashboardService) {}
+
     public function index(Request $request)
     {
         $period = $request->query('period', Period::MONTH->value);
@@ -18,19 +21,7 @@ class DashboardController extends Controller
         $durations = [$offsetPeriod, $currTime];
         $formattedTimezone = $currTime->copy()->format('P');
 
-        $transactions = $request->user()
-            ->transactions()
-            ->selectRaw(
-                "DATE_FORMAT(CONVERT_TZ(transactioned_at, '+00:00', ?), ?) as transactioned_date",
-                [$formattedTimezone, Period::getDateFormat($period)]
-            )
-            ->selectRaw("SUM(amount) as total_amount")
-            ->selectRaw("SUM(CASE WHEN amount < 0 THEN amount ELSE 0 END) * -1 as total_expenses")
-            ->selectRaw("SUM(CASE WHEN amount > 0 THEN amount ELSE 0 END) as total_incomes")
-            ->whereBetween('transactioned_at', $durations)
-            ->groupBy('transactioned_date')
-            ->orderBy('transactioned_date')
-            ->get();
+        $transactions = $this->dashboardService->getTransactions($period, $formattedTimezone, $durations);
 
         $periodOptions = collect(Period::cases())
             ->map(
